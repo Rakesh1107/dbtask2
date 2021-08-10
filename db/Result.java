@@ -11,4 +11,9 @@ public class Result {
         return statement.executeQuery("select * from accounts");
     }
 
+    public static ResultSet getCustomers() throws SQLException {
+        Statement statement = Query.getStatement(Connector.getConnection());
+        return statement.executeQuery("select * from customers");
+    }
+
 }

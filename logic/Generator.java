@@ -13,7 +13,7 @@ public class Generator {
     public static int generateUserId() {
         int userId = (int) (Math.random() * 999999 + 100000);
         while (DataStorage.getData().containsKey(userId)) {
-            userId = (int) (Math.random() * 10000000 + 10000000);
+            userId = (int) (Math.random() * 999999 + 100000);
         }
         return userId;
     }

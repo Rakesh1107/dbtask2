@@ -10,6 +10,7 @@ import java.util.Map;
 public class DataStorage {
 
     static Map<Integer, Map<Long, Account>> data = new HashMap<>();
+    static Map<Integer, Customer> users = new HashMap<>();
     static List<Long> accounts = new ArrayList<>();
 
     public static void addData(ResultSet accountData) throws SQLException {
@@ -42,5 +43,23 @@ public class DataStorage {
 
     public static List<Long> getAccounts() {
         return accounts;
+    }
+
+    public static Map<Integer, Customer> getUsers() { return users; }
+
+    public static void addCustomer(ResultSet customersData) throws SQLException {
+        int userId = customersData.getInt(1);
+        String name = customersData.getString(2);
+        long mobileNumber = customersData.getLong(3);
+        String address = customersData.getString(4);
+
+        Customer customer = new Customer();
+        customer.setUserId(userId);
+        customer.setName(name);
+        customer.setMobileNumber(mobileNumber);
+        customer.setAddress(address);
+
+        users.put(userId, customer);
+
     }
 }

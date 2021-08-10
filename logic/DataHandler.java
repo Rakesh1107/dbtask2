@@ -20,13 +20,15 @@ public class DataHandler {
 
         Mediator.insertCustomer(customer);
 
-        DataStorage.data.put(userId, new HashMap<>());
+        DataStorage.getData().put(userId, new HashMap<>());
+        DataStorage.getUsers().put(userId, customer);
+
         return userId;
     }
 
     public static long createNewAccount(int userId, String branch) throws SQLException {
 
-        if(!DataStorage.getData().containsKey(userId)) {
+        if(!DataStorage.getUsers().containsKey(userId)) {
             return -1;
         }
 
@@ -41,28 +43,36 @@ public class DataHandler {
         Mediator.insertAccount(account);
 
         DataStorage.getAccounts().add(accountNumber);
-        DataStorage.getData().get(userId).put(accountNumber, account);
+        DataStorage.getData().getOrDefault(userId, new HashMap<>()).put(accountNumber, account);
 
         return accountNumber;
     }
 
     public static long checkBalance(int userId) {
 
-        if(DataStorage.getData().containsKey(userId)) {
-            long balance = 0;
-            for(Account account: DataStorage.getData().get(userId).values()) {
-                balance+=account.getBalance();
-            }
-            return balance;
+        if(!DataStorage.getUsers().containsKey(userId)) {
+            return -1;
         }
-
-        return -1;
+        else if(!DataStorage.getData().containsKey(userId)) {
+            return -2;
+        }
+        long balance = 0;
+        for(Account account: DataStorage.getData().get(userId).values()) {
+            balance+=account.getBalance();
+        }
+        return balance;
     }
 
     public static List<Account> showAccounts(int userId) {
-        if (DataStorage.getData().containsKey(userId)) {
-            return new ArrayList<>(DataStorage.getData().get(userId).values());
+
+        if(!DataStorage.getUsers().containsKey(userId)) {
+            return null;
         }
-        return null;
+
+        if (!DataStorage.getData().containsKey(userId)) {
+            return new ArrayList<>();
+        }
+
+        return new ArrayList<>(DataStorage.getData().get(userId).values());
     }
 }

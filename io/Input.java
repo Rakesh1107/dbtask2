@@ -1,8 +1,9 @@
-package iolayer;
+package io;
 
 import logic.Account;
 import logic.DataHandler;
-import logic.Mediator;
+import logic.Starter;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -14,7 +15,7 @@ public class Input {
 
     public static void getInput() throws SQLException, IOException {
         Output.showWelcomeMessage();
-        Mediator.start();
+        Starter.start();
 
         int option = getInt();
         while(option != 0) {
@@ -30,10 +31,7 @@ public class Input {
         switch (option) {
             case 1:
                 Output.showNewUser();
-                String name = getString();
-                long mobileNumber = getLong();
-                String address = getString();
-                int userId = DataHandler.createNewUser(name, mobileNumber, address);
+                int userId = DataHandler.createNewUser(getString(), getLong(), getString());
                 System.out.println("Your user id is " + userId);
                 break;
             case 2:
@@ -50,6 +48,9 @@ public class Input {
                 long balance = DataHandler.checkBalance(getInt());
                 if(balance == -1) {
                     System.out.println("User id does not exist");
+                }
+                else if(balance == -2) {
+                    System.out.println("You don't have any accounts");
                 }
                 else {
                     System.out.println("Your total balance is " + balance);
