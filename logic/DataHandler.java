@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
 public class DataHandler {
 
     public static int createNewUser(String name, long mobileNumber, String address) throws SQLException {
@@ -28,7 +27,7 @@ public class DataHandler {
 
     public static long createNewAccount(int userId, String branch) throws SQLException {
 
-        if(!DataStorage.getUsers().containsKey(userId)) {
+        if (!DataStorage.getUsers().containsKey(userId)) {
             return -1;
         }
 
@@ -50,22 +49,21 @@ public class DataHandler {
 
     public static long checkBalance(int userId) {
 
-        if(!DataStorage.getUsers().containsKey(userId)) {
+        if (!DataStorage.getUsers().containsKey(userId)) {
             return -1;
-        }
-        else if(!DataStorage.getData().containsKey(userId)) {
+        } else if (!DataStorage.getData().containsKey(userId)) {
             return -2;
         }
         long balance = 0;
-        for(Account account: DataStorage.getData().get(userId).values()) {
-            balance+=account.getBalance();
+        for (Account account : DataStorage.getData().get(userId).values()) {
+            balance += account.getBalance();
         }
         return balance;
     }
 
     public static List<Account> showAccounts(int userId) {
 
-        if(!DataStorage.getUsers().containsKey(userId)) {
+        if (!DataStorage.getUsers().containsKey(userId)) {
             return null;
         }
 

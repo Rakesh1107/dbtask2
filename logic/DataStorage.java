@@ -38,6 +38,7 @@ public class DataStorage {
     }
 
     public static void addCustomer(ResultSet customersData) throws SQLException {
+
         int userId = customersData.getInt(1);
         String name = customersData.getString(2);
         long mobileNumber = customersData.getLong(3);

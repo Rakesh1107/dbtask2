@@ -3,7 +3,6 @@ package db;
 import logic.Account;
 import logic.Customer;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -16,7 +15,8 @@ public class Query {
     }
 
     public static void insertIntoAccounts(Account account) throws SQLException {
-        PreparedStatement preparedStatement = Connector.getConnection().prepareStatement("insert into accounts (userid, acc_no, balance, branch) values (?,?,?,?)");
+        String query = "insert into accounts (userid, acc_no, balance, branch) values (?,?,?,?)";
+        PreparedStatement preparedStatement = Connector.getConnection().prepareStatement(query);
         preparedStatement.setInt(1, account.getUserId());
         preparedStatement.setLong(2, account.getAccountNumber());
         preparedStatement.setLong(3, account.getBalance());
@@ -25,7 +25,8 @@ public class Query {
     }
 
     public static void insertIntoCustomers(Customer customer) throws SQLException {
-        PreparedStatement preparedStatement = Connector.getConnection().prepareStatement("insert into customers values (?,?,?,?)");
+        String query = "insert into customers values (?,?,?,?)";
+        PreparedStatement preparedStatement = Connector.getConnection().prepareStatement(query);
         preparedStatement.setInt(1, customer.getUserId());
         preparedStatement.setString(2, customer.getName());
         preparedStatement.setLong(3, customer.getMobileNumber());
@@ -34,7 +35,8 @@ public class Query {
     }
 
     public static void insertIntoAccounts(List<Account> accounts) throws SQLException {
-        PreparedStatement preparedStatement = Connector.getConnection().prepareStatement("insert into accounts (userid, acc_no, balance, branch) values (?,?,?,?)");
+        String query = "insert into accounts (userid, acc_no, balance, branch) values (?,?,?,?)";
+        PreparedStatement preparedStatement = Connector.getConnection().prepareStatement(query);
         for(Account account: accounts) {
             preparedStatement.setInt(1, account.getUserId());
             preparedStatement.setLong(2, account.getAccountNumber());
@@ -45,8 +47,9 @@ public class Query {
     }
 
     public static void insertIntoCustomers(List<Customer> customers) throws SQLException {
+        String query = "insert into customers values (?,?,?,?)";
         for (Customer customer: customers) {
-            PreparedStatement preparedStatement = Connector.getConnection().prepareStatement("insert into customers values (?,?,?,?)");
+            PreparedStatement preparedStatement = Connector.getConnection().prepareStatement(query);
             preparedStatement.setInt(1, customer.getUserId());
             preparedStatement.setString(2, customer.getName());
             preparedStatement.setLong(3, customer.getMobileNumber());

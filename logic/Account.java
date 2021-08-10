@@ -47,5 +47,6 @@ public class Account {
                 ", balance=" + balance +
                 ", branch='" + branch + '\'' +
                 '}';
+
     }
 }
