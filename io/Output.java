@@ -1,6 +1,10 @@
 package io;
 
 
+import logic.Account;
+
+import java.util.List;
+
 public class Output {
     public static void showWelcomeMessage() {
         System.out.println("1. New user ");
@@ -23,5 +27,39 @@ public class Output {
 
     public static void askUserId() {
         System.out.println("Enter user id");
+    }
+
+    public static void enterValidInput() {
+        System.out.println("Enter valid input");
+    }
+
+    public static void printAccounts(List<Account> list) {
+        for (Account account: list) {
+            System.out.println(account);
+        }
+    }
+
+    public static void closeApplication() {
+        System.out.println("Closing Application");
+    }
+
+    public static void showUserId(int userId) {
+        System.out.println("Your user id is " + userId);
+    }
+
+    public static void userIdNotFound() {
+        System.out.println("User id does not exist");
+    }
+
+    public static void noAccounts() {
+        System.out.println("You don't have any accounts");
+    }
+
+    public static void showBalance(long balance) {
+        System.out.println("Your total balance is " + balance);
+    }
+
+    public static void showAccountNumber(long accountNumber) {
+        System.out.println("Your account number is " + accountNumber);
     }
 }

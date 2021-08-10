@@ -11,8 +11,8 @@ import java.util.List;
 
 public class Query {
 
-    public static Statement getStatement(Connection connection) throws SQLException {
-        return connection.createStatement();
+    public static Statement getStatement() throws SQLException {
+        return Connector.getConnection().createStatement();
     }
 
     public static void insertIntoAccounts(Account account) throws SQLException {

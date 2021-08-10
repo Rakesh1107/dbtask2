@@ -24,7 +24,7 @@ public class Input {
             option = getInt();
         }
 
-        System.out.println("Closing Application");
+        Output.closeApplication();
     }
 
     private static void handle(int option) throws IOException, SQLException {
@@ -32,44 +32,43 @@ public class Input {
             case 1:
                 Output.showNewUser();
                 int userId = DataHandler.createNewUser(getString(), getLong(), getString());
-                System.out.println("Your user id is " + userId);
+                Output.showUserId(userId);
                 break;
             case 2:
                 Output.showNewAccount();
                 long accountNumber = DataHandler.createNewAccount(getInt(), getString());
                 if(accountNumber == -1) {
-                    System.out.println("User id does not exist");
+                    Output.userIdNotFound();
                 } else {
-                    System.out.println("Your account number is " + accountNumber);
+                    Output.showAccountNumber(accountNumber);
                 }
                 break;
             case 3:
                 Output.askUserId();
                 long balance = DataHandler.checkBalance(getInt());
                 if(balance == -1) {
-                    System.out.println("User id does not exist");
+                    Output.userIdNotFound();
                 }
                 else if(balance == -2) {
-                    System.out.println("You don't have any accounts");
+                    Output.noAccounts();
                 }
                 else {
-                    System.out.println("Your total balance is " + balance);
+                    Output.showBalance(balance);
                 }
                 break;
             case 4:
                 Output.askUserId();
                 List<Account> list = DataHandler.showAccounts(getInt());
                 if (list == null) {
-                    System.out.println("User id does not exist");
+                    Output.userIdNotFound();
                 } else if(list.isEmpty()) {
-                    System.out.println("You don't have any accounts");
+                    Output.noAccounts();
                 } else {
-                    for(Account account: list)
-                        System.out.println(account);
+                    Output.printAccounts(list);
                 }
                 break;
             default:
-                System.out.println("Enter valid input");
+                Output.enterValidInput();
         }
     }
 

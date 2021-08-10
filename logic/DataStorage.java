@@ -9,9 +9,9 @@ import java.util.Map;
 
 public class DataStorage {
 
-    static Map<Integer, Map<Long, Account>> data = new HashMap<>();
-    static Map<Integer, Customer> users = new HashMap<>();
-    static List<Long> accounts = new ArrayList<>();
+    private static final Map<Integer, Map<Long, Account>> data = new HashMap<>();
+    private static final Map<Integer, Customer> users = new HashMap<>();
+    private static final List<Long> accounts = new ArrayList<>();
 
     public static void addData(ResultSet accountData) throws SQLException {
         int userId = accountData.getInt(2);
@@ -27,7 +27,7 @@ public class DataStorage {
 
         accounts.add(accountNumber);
 
-        if(data.containsKey(userId)) {
+        if (data.containsKey(userId)) {
             Map<Long, Account> newAccount = data.get(userId);
             newAccount.put(accountNumber, account);
         }
@@ -36,16 +36,6 @@ public class DataStorage {
             data.get(userId).put(accountNumber, account);
         }
     }
-
-    public static Map<Integer, Map<Long, Account>> getData() {
-        return data;
-    }
-
-    public static List<Long> getAccounts() {
-        return accounts;
-    }
-
-    public static Map<Integer, Customer> getUsers() { return users; }
 
     public static void addCustomer(ResultSet customersData) throws SQLException {
         int userId = customersData.getInt(1);
@@ -62,4 +52,15 @@ public class DataStorage {
         users.put(userId, customer);
 
     }
+
+    public static Map<Integer, Map<Long, Account>> getData() {
+        return data;
+    }
+
+    public static List<Long> getAccounts() {
+        return accounts;
+    }
+
+    public static Map<Integer, Customer> getUsers() { return users; }
+
 }
