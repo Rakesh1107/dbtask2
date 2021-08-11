@@ -3,8 +3,6 @@ package logic;
 import db.Connector;
 import pojo.Account;
 import pojo.Customer;
-
-import java.sql.SQLException;
 import java.util.List;
 
 public class Mediator {

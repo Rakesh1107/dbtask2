@@ -4,6 +4,7 @@ import pojo.Account;
 import pojo.Customer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DataHandler {
@@ -24,6 +25,13 @@ public class DataHandler {
         account.setAccountNumber(accountNumber);
         account.setBranch(branch);
 
+        if(userId != -1 && accountNumber != -1) {
+            DataStorage.getUsers().put(userId, customer);
+            DataStorage.getData().put(userId, new HashMap<>());
+            DataStorage.getData().get(userId).put(accountNumber, account);
+            DataStorage.getAccounts().add(accountNumber);
+        }
+
         return new long[]{userId, accountNumber};
 
     }
@@ -41,6 +49,11 @@ public class DataHandler {
         account.setUserId(userId);
         account.setAccountNumber(accountNumber);
         account.setBranch(branch);
+
+        if (accountNumber != -1) {
+            DataStorage.getData().get(userId).put(accountNumber, account);
+            DataStorage.getAccounts().add(accountNumber);
+        }
 
         return accountNumber;
 

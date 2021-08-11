@@ -26,8 +26,10 @@ public class Connector {
 
     public static List<Customer> getCustomers() {
         List<Customer> customers = new ArrayList<>();
+
         try (Statement statement = getConnection().createStatement()) {
             String selectQuery = "select * from customers";
+
             try (ResultSet resultSet = statement.executeQuery(selectQuery)) {
                 while (resultSet.next()) {
                     int userId = resultSet.getInt(1);
@@ -88,31 +90,22 @@ public class Connector {
             preparedStatement.setLong(2, 0);
             preparedStatement.setString(3, branch);
             preparedStatement.executeUpdate();
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
-            if(resultSet.next()){
-                return resultSet.getLong(1);
+            try(ResultSet resultSet =  preparedStatement.getGeneratedKeys()){
+                if(resultSet.next()){
+                    return resultSet.getInt(1);
+                }
+            } catch (Exception e) {
+                return -1;
             }
-
-
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
-        return 0;
+        return -1;
     }
-
-//    private static int getAccountNumber() throws SQLException {
-//        Statement statement = getConnection().createStatement();
-//        ResultSet resultSet = statement.executeQuery("SELECT MAX(id) FROM accounts;");
-//        return resultSet.getInt(1);
-//    }
-
 
     public static int insertIntoCustomers(String name, long mobileNumber, String address) {
         String query = "insert into customers (name, mobile, address) values (?,?,?)";
-        PreparedStatement preparedStatement = null;
-
-        try  {
-            preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, name);
             preparedStatement.setLong(2, mobileNumber);
             preparedStatement.setString(3, address);
@@ -124,17 +117,13 @@ public class Connector {
             } catch (Exception e) {
                 return -1;
             }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return -1;
     }
 
-//    private static int getUserId() throws SQLException {
-//        Statement statement = getConnection().createStatement();
-//        ResultSet resultSet = statement.executeQuery("SELECT MAX(id) FROM CUSTOMERS;");
-//        return resultSet.getInt(1);
-//    }
+
 
     public static boolean insertIntoAccounts(List<Account> accounts) {
         String query = "insert into accounts (userid, balance, branch) values (?,?,?)";
