@@ -1,14 +1,14 @@
 package logic;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class DataHandler {
 
-    public static int createNewUser(String name, long mobileNumber, String address) throws SQLException {
+    public static long[] createNewUser(String name, long mobileNumber, String address, String branch) {
         int userId = Generator.generateUserId();
+        long accountNumber = Generator.generateAccountNumber();
 
         Customer customer;
         customer = new Customer();
@@ -17,17 +17,26 @@ public class DataHandler {
         customer.setMobileNumber(mobileNumber);
         customer.setAddress(address);
 
+        Account account;
+        account = new Account();
+        account.setUserId(userId);
+        account.setAccountNumber(accountNumber);
+        account.setBranch(branch);
+
         Mediator.insertCustomer(customer);
+        Mediator.insertAccount(account);
 
         DataStorage.getData().put(userId, new HashMap<>());
+        DataStorage.getData().get(userId).put(accountNumber, account);
         DataStorage.getUsers().put(userId, customer);
+        DataStorage.getAccounts().add(accountNumber);
 
-        return userId;
+        return new long[]{userId, accountNumber};
     }
 
-    public static long createNewAccount(int userId, String branch) throws SQLException {
+    public static long createNewAccount(int userId, String branch) {
 
-        if (!DataStorage.getUsers().containsKey(userId)) {
+        if (!DataStorage.getData().containsKey(userId)) {
             return -1;
         }
 
@@ -41,19 +50,18 @@ public class DataHandler {
 
         Mediator.insertAccount(account);
 
+        DataStorage.getData().get(userId).put(accountNumber, account);
         DataStorage.getAccounts().add(accountNumber);
-        DataStorage.getData().getOrDefault(userId, new HashMap<>()).put(accountNumber, account);
 
         return accountNumber;
     }
 
     public static long checkBalance(int userId) {
 
-        if (!DataStorage.getUsers().containsKey(userId)) {
+        if (!DataStorage.getData().containsKey(userId)) {
             return -1;
-        } else if (!DataStorage.getData().containsKey(userId)) {
-            return -2;
         }
+
         long balance = 0;
         for (Account account : DataStorage.getData().get(userId).values()) {
             balance += account.getBalance();

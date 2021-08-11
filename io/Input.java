@@ -2,73 +2,69 @@ package io;
 
 import logic.Account;
 import logic.DataHandler;
-import logic.Starter;
+import logic.Initiator;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 
 public class Input {
+
     static BufferedReader inputReader = new BufferedReader(new InputStreamReader(System.in));
 
-    public static void getInput() throws SQLException, IOException {
-        Output.showWelcomeMessage();
-        Starter.start();
+    public static void getInput() throws IOException {
+        Display.showWelcomeMessage();
+        Initiator.initiate();
 
         int option = getInt();
         while(option != 0) {
             handle(option);
-            Output.showWelcomeMessage();
+            Display.showWelcomeMessage();
             option = getInt();
         }
 
-        Output.closeApplication();
+        Display.closeApplication();
     }
 
-    private static void handle(int option) throws IOException, SQLException {
+    private static void handle(int option) throws IOException {
         switch (option) {
             case 1:
-                Output.showNewUser();
-                int userId = DataHandler.createNewUser(getString(), getLong(), getString());
-                Output.showUserId(userId);
+                Display.showNewUser();
+                long[] data = DataHandler.createNewUser(getString(), getLong(), getString(), getString());
+                Display.showUserData(data);
                 break;
             case 2:
-                Output.showNewAccount();
+                Display.showNewAccount();
                 long accountNumber = DataHandler.createNewAccount(getInt(), getString());
                 if(accountNumber == -1) {
-                    Output.userIdNotFound();
+                    Display.userIdNotFound();
                 } else {
-                    Output.showAccountNumber(accountNumber);
+                    Display.showAccountNumber(accountNumber);
                 }
                 break;
             case 3:
-                Output.askUserId();
+                Display.askUserId();
                 long balance = DataHandler.checkBalance(getInt());
                 if(balance == -1) {
-                    Output.userIdNotFound();
-                }
-                else if(balance == -2) {
-                    Output.noAccounts();
+                    Display.userIdNotFound();
                 }
                 else {
-                    Output.showBalance(balance);
+                    Display.showBalance(balance);
                 }
                 break;
             case 4:
-                Output.askUserId();
+                Display.askUserId();
                 List<Account> list = DataHandler.showAccounts(getInt());
                 if (list == null) {
-                    Output.userIdNotFound();
-                } else if(list.isEmpty()) {
-                    Output.noAccounts();
-                } else {
-                    Output.printAccounts(list);
+                    Display.userIdNotFound();
+                }
+                else {
+                    Display.printAccounts(list);
                 }
                 break;
             default:
-                Output.enterValidInput();
+                Display.enterValidInput();
         }
     }
 

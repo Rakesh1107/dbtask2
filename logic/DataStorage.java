@@ -1,7 +1,5 @@
 package logic;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,47 +9,25 @@ public class DataStorage {
 
     private static final Map<Integer, Map<Long, Account>> data = new HashMap<>();
     private static final Map<Integer, Customer> users = new HashMap<>();
-    private static final List<Long> accounts = new ArrayList<>();
+    private static final List<Long> userAccounts = new ArrayList<>();
 
-    public static void addData(ResultSet accountData) throws SQLException {
-        int userId = accountData.getInt(2);
-        long accountNumber = accountData.getLong(3);
-        long balance = accountData.getLong(4);
-        String branch = accountData.getString(5);
-
-        Account account = new Account();
-        account.setUserId(userId);
-        account.setAccountNumber(accountNumber);
-        account.setBalance(balance);
-        account.setBranch(branch);
-
-        accounts.add(accountNumber);
-
-        if (data.containsKey(userId)) {
-            Map<Long, Account> newAccount = data.get(userId);
-            newAccount.put(accountNumber, account);
-        }
-        else {
-            data.put(userId, new HashMap<>());
+    public static void addData(List<Account> accounts)  {
+        for (Account account: accounts) {
+            int userId = account.getUserId();
+            long accountNumber = account.getAccountNumber();
+            if (!data.containsKey(userId)) {
+                data.put(userId, new HashMap<>());
+            }
+            userAccounts.add(accountNumber);
             data.get(userId).put(accountNumber, account);
         }
     }
 
-    public static void addCustomer(ResultSet customersData) throws SQLException {
-
-        int userId = customersData.getInt(1);
-        String name = customersData.getString(2);
-        long mobileNumber = customersData.getLong(3);
-        String address = customersData.getString(4);
-
-        Customer customer = new Customer();
-        customer.setUserId(userId);
-        customer.setName(name);
-        customer.setMobileNumber(mobileNumber);
-        customer.setAddress(address);
-
-        users.put(userId, customer);
-
+    public static void addCustomer(List<Customer> customers)  {
+        for (Customer customer: customers) {
+            int userId = customer.getUserId();
+            users.put(userId, customer);
+        }
     }
 
     public static Map<Integer, Map<Long, Account>> getData() {
@@ -59,7 +35,7 @@ public class DataStorage {
     }
 
     public static List<Long> getAccounts() {
-        return accounts;
+        return userAccounts;
     }
 
     public static Map<Integer, Customer> getUsers() { return users; }

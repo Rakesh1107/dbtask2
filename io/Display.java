@@ -5,7 +5,7 @@ import logic.Account;
 
 import java.util.List;
 
-public class Output {
+public class Display {
     public static void showWelcomeMessage() {
         System.out.println("1. New user ");
         System.out.println("2. Existing user? Create new account ");
@@ -18,6 +18,7 @@ public class Output {
         System.out.println("Enter your name");
         System.out.println("Enter your mobile number");
         System.out.println("Enter address");
+        System.out.println("Enter branch");
     }
 
     public static void showNewAccount() {
@@ -43,16 +44,12 @@ public class Output {
         System.out.println("Closing Application");
     }
 
-    public static void showUserId(int userId) {
-        System.out.println("Your user id is " + userId);
+    public static void showUserData(long[] data) {
+        System.out.println("Your user id is " + data[0] + "\nYour account number is " + data[1]);
     }
 
     public static void userIdNotFound() {
         System.out.println("User id does not exist");
-    }
-
-    public static void noAccounts() {
-        System.out.println("You don't have any accounts");
     }
 
     public static void showBalance(long balance) {
