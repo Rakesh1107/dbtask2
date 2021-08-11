@@ -1,37 +1,31 @@
 package logic;
 
+import pojo.Account;
+import pojo.Customer;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class DataHandler {
 
     public static long[] createNewUser(String name, long mobileNumber, String address, String branch) {
-        int userId = Generator.generateUserId();
-        long accountNumber = Generator.generateAccountNumber();
 
-        Customer customer;
-        customer = new Customer();
+        int userId = Mediator.insertCustomer(name, mobileNumber, address);
+        long accountNumber = Mediator.insertAccount(userId, branch);
+
+        Customer customer = new Customer();
         customer.setUserId(userId);
         customer.setName(name);
         customer.setMobileNumber(mobileNumber);
         customer.setAddress(address);
 
-        Account account;
-        account = new Account();
+        Account account = new Account();
         account.setUserId(userId);
         account.setAccountNumber(accountNumber);
         account.setBranch(branch);
 
-        Mediator.insertCustomer(customer);
-        Mediator.insertAccount(account);
-
-        DataStorage.getData().put(userId, new HashMap<>());
-        DataStorage.getData().get(userId).put(accountNumber, account);
-        DataStorage.getUsers().put(userId, customer);
-        DataStorage.getAccounts().add(accountNumber);
-
         return new long[]{userId, accountNumber};
+
     }
 
     public static long createNewAccount(int userId, String branch) {
@@ -40,7 +34,7 @@ public class DataHandler {
             return -1;
         }
 
-        long accountNumber = Generator.generateAccountNumber();
+        long accountNumber = Mediator.insertAccount(userId, branch);
 
         Account account;
         account = new Account();
@@ -48,12 +42,8 @@ public class DataHandler {
         account.setAccountNumber(accountNumber);
         account.setBranch(branch);
 
-        Mediator.insertAccount(account);
-
-        DataStorage.getData().get(userId).put(accountNumber, account);
-        DataStorage.getAccounts().add(accountNumber);
-
         return accountNumber;
+
     }
 
     public static long checkBalance(int userId) {

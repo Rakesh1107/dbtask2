@@ -1,6 +1,6 @@
 package io;
 
-import logic.Account;
+import pojo.Account;
 import logic.DataHandler;
 import logic.Initiator;
 
@@ -14,8 +14,8 @@ public class Input {
     static BufferedReader inputReader = new BufferedReader(new InputStreamReader(System.in));
 
     public static void getInput() throws IOException {
-        Display.showWelcomeMessage();
         Initiator.initiate();
+        Display.showWelcomeMessage();
 
         int option = getInt();
         while(option != 0) {

@@ -1,7 +1,6 @@
 package io;
 
-
-import logic.Account;
+import pojo.Account;
 
 import java.util.List;
 
@@ -58,5 +57,9 @@ public class Display {
 
     public static void showAccountNumber(long accountNumber) {
         System.out.println("Your account number is " + accountNumber);
+    }
+
+    public static void failed(String message) {
+        System.out.println(message + " failed");
     }
 }

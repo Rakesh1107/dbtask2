@@ -1,4 +1,4 @@
-package logic;
+package pojo;
 
 public class Account {
 
@@ -47,6 +47,6 @@ public class Account {
                 ", balance=" + balance +
                 ", branch='" + branch + '\'' +
                 '}';
-
     }
+
 }

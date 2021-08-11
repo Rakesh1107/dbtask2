@@ -1,12 +1,15 @@
 package logic;
 
 import db.Connector;
+import pojo.Account;
+import pojo.Customer;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class Mediator {
 
-    public static void extract()  {
+    public static void extract() {
         List<Account> accounts = Connector.getAccounts();
         DataStorage.addData(accounts);
 
@@ -14,19 +17,19 @@ public class Mediator {
         DataStorage.addCustomer(customers);
     }
 
-    public static void insertCustomer(Customer customer) {
-        Connector.insertIntoCustomers(customer);
+    public static int insertCustomer(String name, long mobileNumber, String address) {
+        return Connector.insertIntoCustomers(name, mobileNumber, address);
     }
 
-    public static void insertAccount(Account account) {
-        Connector.insertIntoAccounts(account);
+    public static long insertAccount(int userId, String branch) {
+        return Connector.insertIntoAccounts(userId, branch);
     }
 
-    public static void insertCustomers(List<Customer> customers) {
-        Connector.insertIntoCustomers(customers);
+    public static boolean insertCustomers(List<Customer> customers) {
+        return Connector.insertIntoCustomers(customers);
     }
 
-    public static void insertAccounts(List<Account> accounts) {
-        Connector.insertIntoAccounts(accounts);
+    public static boolean insertAccounts(List<Account> accounts) {
+        return Connector.insertIntoAccounts(accounts);
     }
 }
