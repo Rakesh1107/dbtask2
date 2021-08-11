@@ -1,4 +1,4 @@
-package logic;
+package pojo;
 
 public class Customer {
 

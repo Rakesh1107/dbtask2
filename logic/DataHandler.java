@@ -1,37 +1,48 @@
 package logic;
 
-import java.sql.SQLException;
+import pojo.Account;
+import pojo.Customer;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class DataHandler {
 
-    public static int createNewUser(String name, long mobileNumber, String address) throws SQLException {
-        int userId = Generator.generateUserId();
+    public static long[] createNewUser(String name, long mobileNumber, String address, String branch) {
 
-        Customer customer;
-        customer = new Customer();
+        int userId = Mediator.insertCustomer(name, mobileNumber, address);
+        long accountNumber = Mediator.insertAccount(userId, branch);
+
+        Customer customer = new Customer();
         customer.setUserId(userId);
         customer.setName(name);
         customer.setMobileNumber(mobileNumber);
         customer.setAddress(address);
 
-        Mediator.insertCustomer(customer);
+        Account account = new Account();
+        account.setUserId(userId);
+        account.setAccountNumber(accountNumber);
+        account.setBranch(branch);
 
-        DataStorage.getData().put(userId, new HashMap<>());
-        DataStorage.getUsers().put(userId, customer);
+        if(userId != -1 && accountNumber != -1) {
+            DataStorage.getUsers().put(userId, customer);
+            DataStorage.getData().put(userId, new HashMap<>());
+            DataStorage.getData().get(userId).put(accountNumber, account);
+            DataStorage.getAccounts().add(accountNumber);
+        }
 
-        return userId;
+        return new long[]{userId, accountNumber};
+
     }
 
-    public static long createNewAccount(int userId, String branch) throws SQLException {
+    public static long createNewAccount(int userId, String branch) {
 
-        if (!DataStorage.getUsers().containsKey(userId)) {
+        if (!DataStorage.getData().containsKey(userId)) {
             return -1;
         }
 
-        long accountNumber = Generator.generateAccountNumber();
+        long accountNumber = Mediator.insertAccount(userId, branch);
 
         Account account;
         account = new Account();
@@ -39,21 +50,21 @@ public class DataHandler {
         account.setAccountNumber(accountNumber);
         account.setBranch(branch);
 
-        Mediator.insertAccount(account);
-
-        DataStorage.getAccounts().add(accountNumber);
-        DataStorage.getData().getOrDefault(userId, new HashMap<>()).put(accountNumber, account);
+        if (accountNumber != -1) {
+            DataStorage.getData().get(userId).put(accountNumber, account);
+            DataStorage.getAccounts().add(accountNumber);
+        }
 
         return accountNumber;
+
     }
 
     public static long checkBalance(int userId) {
 
-        if (!DataStorage.getUsers().containsKey(userId)) {
+        if (!DataStorage.getData().containsKey(userId)) {
             return -1;
-        } else if (!DataStorage.getData().containsKey(userId)) {
-            return -2;
         }
+
         long balance = 0;
         for (Account account : DataStorage.getData().get(userId).values()) {
             balance += account.getBalance();
