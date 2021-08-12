@@ -47,12 +47,11 @@ public class Connector {
 
                     customers.add(customer);
                 }
+                return customers;
             }
-
         } catch (SQLException e) {
             throw new BankException("No records found");
         }
-        return customers;
     }
 
     public static List<Account> getAccounts() throws BankException {
@@ -76,11 +75,11 @@ public class Connector {
 
                     accounts.add(account);
                 }
+                return accounts;
             }
         } catch (SQLException e) {
             throw new BankException("No records found");
         }
-        return accounts;
     }
 
     public static long insertIntoAccounts(Account account) throws BankException {
@@ -94,8 +93,6 @@ public class Connector {
                 if (resultSet.next()) {
                     return resultSet.getInt(1);
                 }
-            } catch (Exception e) {
-                return -1;
             }
         } catch (SQLException e) {
             throw new BankException("Inserting records failed");
@@ -114,11 +111,9 @@ public class Connector {
                 if (resultSet.next()) {
                     return resultSet.getInt(1);
                 }
-            } catch (Exception e) {
-                return -1;
             }
         } catch (SQLException e) {
-            throw new BankException("Inserting records failed");
+            throw new BankException("Adding user failed");
         }
         return -1;
     }
@@ -137,12 +132,9 @@ public class Connector {
             preparedStatement.executeBatch();
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 while (resultSet.next()) {
-                    System.out.println(resultSet.getInt(1));
-
+                    list.add(resultSet.getInt(1));
                 }
                 return list;
-            } catch (Exception e) {
-                throw new BankException("Inserting records failed");
             }
         } catch (SQLException e) {
             throw new BankException("Adding accounts failed");
@@ -162,13 +154,10 @@ public class Connector {
             preparedStatement.executeBatch();
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 while (resultSet.next()) {
-                    System.out.println(resultSet.getInt(1));
+                    list.add(resultSet.getInt(1));
                 }
                 return list;
-            } catch (SQLException e) {
-                throw new BankException("Inserting records failed");
             }
-
         } catch (SQLException e) {
             throw new BankException("Adding users failed");
         }
