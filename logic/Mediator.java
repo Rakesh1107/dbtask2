@@ -1,33 +1,35 @@
 package logic;
 
+import cache.Cache;
 import db.Connector;
+import exception.BankException;
 import pojo.Account;
 import pojo.Customer;
 import java.util.List;
 
 public class Mediator {
 
-    public static void extract() {
+    public static void extract() throws BankException {
         List<Account> accounts = Connector.getAccounts();
-        DataStorage.addData(accounts);
+        Cache.addToCache(accounts);
 
         List<Customer> customers = Connector.getCustomers();
-        DataStorage.addCustomer(customers);
+        Cache.addToUsers(customers);
     }
 
-    public static int insertCustomer(String name, long mobileNumber, String address) {
-        return Connector.insertIntoCustomers(name, mobileNumber, address);
+    public static int insertCustomer(Customer customer) throws BankException {
+        return Connector.insertIntoCustomers(customer);
     }
 
-    public static long insertAccount(int userId, String branch) {
-        return Connector.insertIntoAccounts(userId, branch);
+    public static long insertAccount(Account account) throws BankException {
+        return Connector.insertIntoAccounts(account);
     }
 
-    public static boolean insertCustomers(List<Customer> customers) {
+    public static List<Integer> insertCustomers(List<Customer> customers) throws BankException {
         return Connector.insertIntoCustomers(customers);
     }
 
-    public static boolean insertAccounts(List<Account> accounts) {
+    public static List<Integer> insertAccounts(List<Account> accounts) throws BankException {
         return Connector.insertIntoAccounts(accounts);
     }
 }
