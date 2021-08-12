@@ -1,5 +1,6 @@
 package logic;
 
+import cache.Cache;
 import db.Connector;
 import pojo.Account;
 import pojo.Customer;
@@ -9,18 +10,18 @@ public class Mediator {
 
     public static void extract() {
         List<Account> accounts = Connector.getAccounts();
-        DataStorage.addData(accounts);
+        Cache.addToCache(accounts);
 
         List<Customer> customers = Connector.getCustomers();
-        DataStorage.addCustomer(customers);
+        Cache.addCustomer(customers);
     }
 
-    public static int insertCustomer(String name, long mobileNumber, String address) {
-        return Connector.insertIntoCustomers(name, mobileNumber, address);
+    public static int insertCustomer(Customer customer) {
+        return Connector.insertIntoCustomers(customer);
     }
 
-    public static long insertAccount(int userId, String branch) {
-        return Connector.insertIntoAccounts(userId, branch);
+    public static long insertAccount(Account account) {
+        return Connector.insertIntoAccounts(account);
     }
 
     public static boolean insertCustomers(List<Customer> customers) {

@@ -9,11 +9,11 @@ import java.util.List;
 
 public class Connector {
     static Connection connection;
+    private static final String url = "jdbc:mysql://localhost:3306/bankdb?autoReconnect=true&useSSL=false";
+    private static final String user = "root";
+    private static final String password = "1234";
 
     public static Connection getConnection() {
-        String url = "jdbc:mysql://localhost:3306/bankdb?autoReconnect=true&useSSL=false";
-        String user = "root";
-        String password = "1234";
         try {
             if (connection == null) {
                 connection = DriverManager.getConnection(url, user, password);
@@ -56,7 +56,7 @@ public class Connector {
     public static List<Account> getAccounts() {
         List<Account> accounts = new ArrayList<>();
 
-        try (Statement statement = getConnection().createStatement()){
+        try (Statement statement = getConnection().createStatement()) {
             String selectQuery = "select * from accounts";
             try (ResultSet resultSet = statement.executeQuery(selectQuery)) {
                 while (resultSet.next()) {
@@ -83,15 +83,15 @@ public class Connector {
         return accounts;
     }
 
-    public static long insertIntoAccounts(int userId, String branch) {
+    public static long insertIntoAccounts(Account account) {
         String query = "insert into accounts (userid, balance, branch) values (?,?,?)";
-        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
-            preparedStatement.setInt(1, userId);
-            preparedStatement.setLong(2, 0);
-            preparedStatement.setString(3, branch);
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setInt(1, account.getUserId());
+            preparedStatement.setLong(2, account.getBalance());
+            preparedStatement.setString(3, account.getBranch());
             preparedStatement.executeUpdate();
-            try(ResultSet resultSet =  preparedStatement.getGeneratedKeys()){
-                if(resultSet.next()){
+            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
+                if (resultSet.next()) {
                     return resultSet.getInt(1);
                 }
             } catch (Exception e) {
@@ -103,17 +103,17 @@ public class Connector {
         return -1;
     }
 
-    public static int insertIntoCustomers(String name, long mobileNumber, String address) {
+    public static int insertIntoCustomers(Customer customer) {
         String query = "insert into customers (name, mobile, address) values (?,?,?)";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setString(1, name);
-            preparedStatement.setLong(2, mobileNumber);
-            preparedStatement.setString(3, address);
+            preparedStatement.setString(1, customer.getName());
+            preparedStatement.setLong(2, customer.getMobileNumber());
+            preparedStatement.setString(3, customer.getAddress());
             preparedStatement.executeUpdate();
-            try(ResultSet resultSet =  preparedStatement.getGeneratedKeys()){
-                if(resultSet.next()){
+            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
+                if (resultSet.next()) {
                     return resultSet.getInt(1);
-            }
+                }
             } catch (Exception e) {
                 return -1;
             }
@@ -124,10 +124,9 @@ public class Connector {
     }
 
 
-
     public static boolean insertIntoAccounts(List<Account> accounts) {
         String query = "insert into accounts (userid, balance, branch) values (?,?,?)";
-        try ( PreparedStatement preparedStatement = getConnection().prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)) {
             for (Account account : accounts) {
                 preparedStatement.setInt(1, account.getUserId());
                 preparedStatement.setLong(2, account.getBalance());
@@ -143,7 +142,7 @@ public class Connector {
 
     public static boolean insertIntoCustomers(List<Customer> customers) {
         String query = "insert into customers (name, mobile, address) values (?,?,?)";
-        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)){
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)) {
             for (Customer customer : customers) {
                 preparedStatement.setInt(1, customer.getUserId());
                 preparedStatement.setString(2, customer.getName());

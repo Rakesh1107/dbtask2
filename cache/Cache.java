@@ -1,27 +1,26 @@
-package logic;
+package cache;
 
 import pojo.Account;
 import pojo.Customer;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DataStorage {
+public class Cache {
 
-    private static final Map<Integer, Map<Long, Account>> data = new HashMap<>();
+    private static final Map<Integer, Map<Long, Account>> cache = new HashMap<>();
     private static final Map<Integer, Customer> users = new HashMap<>();
-    private static final List<Long> userAccounts = new ArrayList<>();
+    //private static final List<Long> userAccounts = new ArrayList<>();
 
-    public static void addData(List<Account> accounts) {
+    public static void addToCache(List<Account> accounts) {
         for (Account account : accounts) {
             int userId = account.getUserId();
             long accountNumber = account.getAccountNumber();
-            Map<Long, Account> accountMap = data.getOrDefault(userId, new HashMap<>());
-            data.put(userId, accountMap);
+            Map<Long, Account> accountMap = cache.getOrDefault(userId, new HashMap<>());
+            cache.put(userId, accountMap);
             accountMap.put(accountNumber, account);
-            userAccounts.add(accountNumber);
+            //userAccounts.add(accountNumber);
         }
     }
 
@@ -32,13 +31,13 @@ public class DataStorage {
         }
     }
 
-    public static Map<Integer, Map<Long, Account>> getData() {
-        return data;
+    public static Map<Integer, Map<Long, Account>> getCache() {
+        return cache;
     }
 
-    public static List<Long> getAccounts() {
-        return userAccounts;
-    }
+//    public static List<Long> getAccounts() {
+//        return userAccounts;
+//    }
 
     public static Map<Integer, Customer> getUsers() {
         return users;

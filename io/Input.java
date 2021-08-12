@@ -1,7 +1,7 @@
 package io;
 
 import pojo.Account;
-import logic.DataHandler;
+import cache.CacheHandler;
 import logic.Initiator;
 
 import java.io.BufferedReader;
@@ -31,12 +31,17 @@ public class Input {
         switch (option) {
             case 1:
                 Display.showNewUser();
-                long[] data = DataHandler.createNewUser(getString(), getLong(), getString(), getString());
-                Display.showUserData(data);
+                long[] data = CacheHandler.createNewUser(getString(), getLong(), getString(), getString());
+                if (data == null) {
+                    Display.failed("User creation");
+                } else {
+                    Display.showUserData(data);
+                }
+
                 break;
             case 2:
                 Display.showNewAccount();
-                long accountNumber = DataHandler.createNewAccount(getInt(), getString());
+                long accountNumber = CacheHandler.createNewAccount(getInt(), getString());
                 if(accountNumber == -1) {
                     Display.userIdNotFound();
                 } else {
@@ -45,7 +50,7 @@ public class Input {
                 break;
             case 3:
                 Display.askUserId();
-                long balance = DataHandler.checkBalance(getInt());
+                long balance = CacheHandler.checkBalance(getInt());
                 if(balance == -1) {
                     Display.userIdNotFound();
                 }
@@ -55,7 +60,7 @@ public class Input {
                 break;
             case 4:
                 Display.askUserId();
-                List<Account> list = DataHandler.showAccounts(getInt());
+                List<Account> list = CacheHandler.showAccounts(getInt());
                 if (list == null) {
                     Display.userIdNotFound();
                 }
