@@ -95,7 +95,7 @@ public class Connector {
                 }
             }
         } catch (SQLException e) {
-            throw new BankException("Inserting records failed");
+            throw new BankException("Adding account failed");
         }
         return -1;
     }
