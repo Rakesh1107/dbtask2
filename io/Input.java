@@ -1,7 +1,8 @@
 package io;
 
+import exception.BankException;
 import pojo.Account;
-import cache.CacheHandler;
+import logic.DataHandler;
 import logic.Initiator;
 
 import java.io.BufferedReader;
@@ -13,7 +14,7 @@ public class Input {
 
     static BufferedReader inputReader = new BufferedReader(new InputStreamReader(System.in));
 
-    public static void getInput() throws IOException {
+    public static void getInput() throws IOException, BankException {
         Initiator.initiate();
         Display.showWelcomeMessage();
 
@@ -27,11 +28,11 @@ public class Input {
         Display.closeApplication();
     }
 
-    private static void handle(int option) throws IOException {
+    private static void handle(int option) throws IOException, BankException {
         switch (option) {
             case 1:
                 Display.showNewUser();
-                long[] data = CacheHandler.createNewUser(getString(), getLong(), getString(), getString());
+                long[] data = DataHandler.createNewUser(getString(), getLong(), getString(), getString());
                 if (data == null) {
                     Display.failed("User creation");
                 } else {
@@ -41,7 +42,7 @@ public class Input {
                 break;
             case 2:
                 Display.showNewAccount();
-                long accountNumber = CacheHandler.createNewAccount(getInt(), getString());
+                long accountNumber = DataHandler.createNewAccount(getInt(), getString());
                 if(accountNumber == -1) {
                     Display.userIdNotFound();
                 } else {
@@ -50,7 +51,7 @@ public class Input {
                 break;
             case 3:
                 Display.askUserId();
-                long balance = CacheHandler.checkBalance(getInt());
+                long balance = DataHandler.checkBalance(getInt());
                 if(balance == -1) {
                     Display.userIdNotFound();
                 }
@@ -60,7 +61,7 @@ public class Input {
                 break;
             case 4:
                 Display.askUserId();
-                List<Account> list = CacheHandler.showAccounts(getInt());
+                List<Account> list = DataHandler.showAccounts(getInt());
                 if (list == null) {
                     Display.userIdNotFound();
                 }

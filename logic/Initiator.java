@@ -1,7 +1,9 @@
 package logic;
 
+import exception.BankException;
+
 public class Initiator {
-    public static void initiate() {
+    public static void initiate() throws BankException {
         Mediator.extract();
     }
 }

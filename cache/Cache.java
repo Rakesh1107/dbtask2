@@ -24,7 +24,7 @@ public class Cache {
         }
     }
 
-    public static void addCustomer(List<Customer> customers) {
+    public static void addToUsers(List<Customer> customers) {
         for (Customer customer : customers) {
             int userId = customer.getUserId();
             users.put(userId, customer);
