@@ -10,6 +10,39 @@ import java.util.List;
 
 public class Connector {
 
+    public static void main(String[] args) {
+
+        List<Customer> customers = new ArrayList<>();
+
+        Customer customer1 = new Customer();
+        customer1.setName("Rahul");
+        customer1.setMobileNumber(82398989);
+        customer1.setAddress("Bengaluru");
+
+        Customer customer2 = new Customer();
+//        customer2.setName("Umesh");
+        customer2.setMobileNumber(98182189);
+        customer2.setAddress("Delhi");
+//
+//        Customer customer3 = new Customer();
+//        customer3.setName("Rohit");
+//        customer3.setMobileNumber(82132819);
+//        customer3.setAddress("Mumbai");
+
+        customers.add(customer1);
+        customers.add(customer2);
+
+        try {
+            List<Integer> list = insertIntoCustomers(customers);
+            for (int i: list)
+                System.out.println(i);
+        }
+        catch (BankException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
     static Connection connection;
     private static final String url = "jdbc:mysql://localhost:3306/bankdb?autoReconnect=true&useSSL=false";
     private static final String user = "root";
@@ -50,7 +83,7 @@ public class Connector {
                 return customers;
             }
         } catch (SQLException e) {
-            throw new BankException("No records found");
+            throw new BankException("Unable to retrieve users at the moment");
         }
     }
 
@@ -78,7 +111,7 @@ public class Connector {
                 return accounts;
             }
         } catch (SQLException e) {
-            throw new BankException("No records found");
+            throw new BankException("Unable to retrieve accounts at the moment");
         }
     }
 
@@ -121,6 +154,7 @@ public class Connector {
 
     public static List<Integer> insertIntoAccounts(List<Account> accounts) throws BankException {
         String query = "insert into accounts (userid, balance, branch) values (?,?,?)";
+        int count = 0;
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             List<Integer> list = new ArrayList<>();
             for (Account account : accounts) {
@@ -129,7 +163,7 @@ public class Connector {
                 preparedStatement.setString(3, account.getBranch());
                 preparedStatement.addBatch();
             }
-            preparedStatement.executeBatch();
+            count = preparedStatement.executeBatch().length;
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 while (resultSet.next()) {
                     list.add(resultSet.getInt(1));
@@ -137,13 +171,15 @@ public class Connector {
                 return list;
             }
         } catch (SQLException e) {
-            throw new BankException("Adding accounts failed");
+            throw new BankException("Added "  + count + " failed");
         }
     }
 
     public static List<Integer> insertIntoCustomers(List<Customer> customers) throws BankException {
         String query = "insert into customers (name, mobile, address) values (?,?,?)";
+        int count = 0;
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
+            getConnection().setAutoCommit(false);
             List<Integer> list = new ArrayList<>();
             for (Customer customer : customers) {
                 preparedStatement.setString(1, customer.getName());
@@ -151,7 +187,7 @@ public class Connector {
                 preparedStatement.setString(3, customer.getAddress());
                 preparedStatement.addBatch();
             }
-            preparedStatement.executeBatch();
+            count = preparedStatement.executeBatch().length;
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 while (resultSet.next()) {
                     list.add(resultSet.getInt(1));
@@ -159,7 +195,47 @@ public class Connector {
                 return list;
             }
         } catch (SQLException e) {
-            throw new BankException("Adding users failed");
+            throw new BankException("Added " + count + " entries");
+        }
+    }
+
+    public static long withdrawMoney(long accountNumber, long amount) throws BankException {
+        String query = "update accounts set balance = ? where acc_no = ?";
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)) {
+            long oldBalance = getBalance(accountNumber);
+            preparedStatement.setLong(1, oldBalance-amount);
+            preparedStatement.setLong(2, accountNumber);
+            preparedStatement.executeUpdate();
+            return getBalance(accountNumber);
+        } catch (SQLException e) {
+            throw new BankException("Money Withdrawal failed");
+        }
+    }
+
+    public static long depositMoney(long accountNumber, long amount) throws BankException {
+        String query = "update accounts set balance = ? where acc_no = ?";
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)){
+            long oldBalance = getBalance(accountNumber);
+            preparedStatement.setLong(1, oldBalance+amount);
+            preparedStatement.setLong(2, accountNumber);
+            preparedStatement.executeUpdate();
+            return getBalance(accountNumber);
+        } catch (SQLException e) {
+            throw new BankException("Money deposit failed");
+        }
+    }
+
+    private static long getBalance(long accountNumber) throws BankException {
+        try (Statement statement = getConnection().createStatement()) {
+            String selectQuery = "select balance from accounts where acc_no = " + accountNumber;
+            try (ResultSet resultSet = statement.executeQuery(selectQuery)) {
+                if (resultSet.next()) {
+                    return resultSet.getLong(1);
+                }
+                return -1;
+            }
+        } catch (SQLException e) {
+            throw new BankException("Could not load balance");
         }
     }
 }

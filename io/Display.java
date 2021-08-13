@@ -1,7 +1,6 @@
 package io;
 
 import pojo.Account;
-
 import java.util.List;
 
 import static java.lang.System.out;
@@ -12,7 +11,10 @@ public class Display {
         out.println("2. Existing user? Create new account ");
         out.println("3. Check Balance ");
         out.println("4. Show accounts ");
+        out.println("5. Deposit Money ");
+        out.println("6. Withdraw money ");
         out.println("Enter 0 to exit");
+
     }
 
     public static void showNewUser()  {
