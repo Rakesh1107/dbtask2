@@ -3,6 +3,7 @@ package db;
 import exception.BankException;
 import pojo.Account;
 import pojo.Customer;
+import java.util.Iterator;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,14 +17,14 @@ public class Connector {
 
         Customer customer1 = new Customer();
         customer1.setName("Rahul");
-        customer1.setMobileNumber(82398989);
+        customer1.setMobileNumber(839889389);
         customer1.setAddress("Bengaluru");
 
         Customer customer2 = new Customer();
 //        customer2.setName("Umesh");
-        customer2.setMobileNumber(98182189);
+        customer2.setMobileNumber(981822891);
         customer2.setAddress("Delhi");
-//
+
 //        Customer customer3 = new Customer();
 //        customer3.setName("Rohit");
 //        customer3.setMobileNumber(82132819);
@@ -157,6 +158,7 @@ public class Connector {
         int count = 0;
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             List<Integer> list = new ArrayList<>();
+            getConnection().setAutoCommit(false);
             for (Account account : accounts) {
                 preparedStatement.setInt(1, account.getUserId());
                 preparedStatement.setLong(2, account.getBalance());
@@ -164,6 +166,7 @@ public class Connector {
                 preparedStatement.addBatch();
             }
             count = preparedStatement.executeBatch().length;
+            getConnection().commit();
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 while (resultSet.next()) {
                     list.add(resultSet.getInt(1));
@@ -171,15 +174,16 @@ public class Connector {
                 return list;
             }
         } catch (SQLException e) {
-            throw new BankException("Added "  + count + " failed");
+            throw new BankException("Added " + count + " records");
         }
     }
 
     public static List<Integer> insertIntoCustomers(List<Customer> customers) throws BankException {
         String query = "insert into customers (name, mobile, address) values (?,?,?)";
         int count = 0;
-        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
-            getConnection().setAutoCommit(false);
+        Connection connection = getConnection();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
+            connection.setAutoCommit(false);
             List<Integer> list = new ArrayList<>();
             for (Customer customer : customers) {
                 preparedStatement.setString(1, customer.getName());
@@ -188,6 +192,7 @@ public class Connector {
                 preparedStatement.addBatch();
             }
             count = preparedStatement.executeBatch().length;
+            connection.commit();
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 while (resultSet.next()) {
                     list.add(resultSet.getInt(1));
@@ -195,7 +200,7 @@ public class Connector {
                 return list;
             }
         } catch (SQLException e) {
-            throw new BankException("Added " + count + " entries");
+            throw new BankException("Added " + count + " records");
         }
     }
 
