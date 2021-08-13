@@ -14,7 +14,7 @@ public class Input {
 
     static BufferedReader inputReader = new BufferedReader(new InputStreamReader(System.in));
 
-    public static void getInput() throws IOException {
+    public static void getInput() {
         try {
             Initiator.initiate();
             Display.showWelcomeMessage();
@@ -32,7 +32,7 @@ public class Input {
         }
     }
 
-    private static void handle(int option) throws IOException {
+    private static void handle(int option) {
         try {
             switch (option) {
                 case 1:
@@ -74,6 +74,22 @@ public class Input {
                         Display.printAccounts(list);
                     }
                     break;
+                case 5:
+                    System.out.println("Enter user id");
+                    System.out.println("Enter amount to deposit");
+                    long newBalance = DataHandler.depositMoney(getInt(), getLong());
+                    if (newBalance != -1) {
+                        System.out.println("Your new balance is " + newBalance);
+                    }
+                    break;
+                case 6:
+                    System.out.println("Enter user id");
+                    System.out.println("Enter amount to withdraw");
+                    long newBalance2 = DataHandler.withdrawMoney(getInt(), getLong());
+                    if (newBalance2 != -1) {
+                        System.out.println("Your new balance is " + newBalance2);
+                    }
+                    break;
                 default:
                     Display.enterValidInput();
             }
@@ -83,17 +99,35 @@ public class Input {
         }
     }
 
-
-    public static String getString() throws IOException {
-        return inputReader.readLine();
+    public static String getString() {
+        try {
+            return inputReader.readLine();
+        }
+        catch (IOException e) {
+            System.out.println("Invalid input");
+        }
+        return null;
     }
 
-    public static long getLong() throws IOException {
-        return Long.parseLong(inputReader.readLine());
+    public static long getLong() {
+        try {
+            return Long.parseLong(inputReader.readLine());
+        }
+        catch (IOException e) {
+            System.out.println("Invalid input");
+        }
+        return -1;
     }
 
-    public static int getInt() throws IOException {
-        return Integer.parseInt(inputReader.readLine());
+    public static int getInt() {
+        try {
+            return Integer.parseInt(inputReader.readLine());
+        }
+        catch (IOException e) {
+            System.out.println("Invalid input");
+        }
+        return -1;
+
     }
 
 }

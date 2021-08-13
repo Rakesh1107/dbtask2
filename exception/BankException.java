@@ -1,7 +1,10 @@
 package exception;
 
-public class BankException extends Exception {
-    public BankException(String connecting_to_database_failed) {
-
+public class BankException extends Throwable {
+    public BankException(String message) {
+        super(message);
+    }
+    public BankException(String message, Exception exception) {
+        super(message,exception);
     }
 }

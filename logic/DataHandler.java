@@ -2,6 +2,7 @@ package logic;
 
 import cache.Cache;
 import exception.BankException;
+import io.Input;
 import pojo.Account;
 import pojo.Customer;
 
@@ -89,19 +90,26 @@ public class DataHandler {
         return balance;
     }
 
-    public void withdrawMoney(int userId, long amount) {
+    public static long withdrawMoney(int userId, long amount) throws BankException {
         if (Cache.getCache().containsKey(userId)) {
             List<Account> userAccounts = new ArrayList<>(Cache.getCache().get(userId).values());
             int i = 0;
             System.out.println("Select account");
-            int option = 1;
+
             for (Account account: userAccounts) {
-                System.out.println(++i + " " + account);
+                System.out.println(++i + ". " + account.getAccountNumber());
             }
-            if(option > 0 && option < userAccounts.size()) {
-                long balance = userAccounts.get(option-1).getBalance();
-                if(balance >= amount) {
-                    userAccounts.get(option-1).setBalance(balance-amount);
+
+            int option = Input.getInt();
+
+            if(option > 0 && option <= userAccounts.size()) {
+                long oldBalance = userAccounts.get(option-1).getBalance();
+                System.out.println(oldBalance);
+                if(oldBalance >= amount) {
+                    long accountToUpdate = userAccounts.get(option-1).getAccountNumber();
+                    long newBalance = Mediator.updateBalance(1, accountToUpdate, amount);
+                    userAccounts.get(option-1).setBalance(oldBalance-amount);
+                    return newBalance;
                 } else {
                     System.out.println("Insufficient funds");
                 }
@@ -112,30 +120,44 @@ public class DataHandler {
         else {
             System.out.println("User id not found");
         }
+        return -1;
     }
 
-    public void depositMoney(int userId, long amount) {
+    public static long depositMoney(int userId, long amount) throws BankException {
         if (Cache.getCache().containsKey(userId)) {
             List<Account> userAccounts = new ArrayList<>(Cache.getCache().get(userId).values());
             int i = 0;
             System.out.println("Select account");
+
             for (Account account: userAccounts) {
-                System.out.println(++i + " " + account);
+                System.out.println(++i + ". " + account.getAccountNumber());
+            }
+            int option = Input.getInt();
+
+            if(option > 0 && option <= userAccounts.size()) {
+                long accountToUpdate = userAccounts.get(option-1).getAccountNumber();
+                long oldBalance = userAccounts.get(option-1).getBalance();
+                long newBalance = Mediator.updateBalance(2, accountToUpdate, amount);
+                userAccounts.get(option-1).setBalance(oldBalance+amount); // updating in cache
+                return newBalance;
+            } else {
+                System.out.println("No such account");
             }
         }
         else {
             System.out.println("User id not found");
         }
+        return -1;
     }
 
     public static List<Account> showAccounts(int userId) {
 
-        if (!Cache.getUsers().containsKey(userId)) {
-            return null;
-        }
+//        if (!Cache.getUsers().containsKey(userId)) {
+//            return null;
+//        }
 
         if (!Cache.getCache().containsKey(userId)) {
-            return new ArrayList<>();
+            return null;
         }
 
         return new ArrayList<>(Cache.getCache().get(userId).values());

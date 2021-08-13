@@ -32,4 +32,12 @@ public class Mediator {
     public static List<Integer> insertAccounts(List<Account> accounts) throws BankException {
         return Connector.insertIntoAccounts(accounts);
     }
+
+    public static long updateBalance(int option, long accountNumber, long amount) throws BankException {
+        if (option == 1) {
+            return Connector.withdrawMoney(accountNumber, amount);
+        } else {
+            return Connector.depositMoney(accountNumber, amount);
+        }
+    }
 }
