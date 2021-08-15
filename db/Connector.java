@@ -21,7 +21,7 @@ public class Connector {
         customer1.setAddress("Bengaluru");
 
         Customer customer2 = new Customer();
-//        customer2.setName("Umesh");
+        customer2.setName("Umesh");
         customer2.setMobileNumber(981822891);
         customer2.setAddress("Delhi");
 
@@ -47,7 +47,7 @@ public class Connector {
     static Connection connection;
     private static final String url = "jdbc:mysql://localhost:3306/bankdb?autoReconnect=true&useSSL=false";
     private static final String user = "root";
-    private static final String password = "1234";
+    private static final String password = "8532";
 
     public static Connection getConnection() throws BankException {
         try {
@@ -55,6 +55,7 @@ public class Connector {
                 connection = DriverManager.getConnection(url, user, password);
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Connecting to database failed");
         }
         return connection;
@@ -84,6 +85,7 @@ public class Connector {
                 return customers;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Unable to retrieve users at the moment");
         }
     }
@@ -112,6 +114,7 @@ public class Connector {
                 return accounts;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Unable to retrieve accounts at the moment");
         }
     }
@@ -129,6 +132,7 @@ public class Connector {
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Adding account failed");
         }
         return -1;
@@ -147,6 +151,7 @@ public class Connector {
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Adding user failed");
         }
         return -1;
@@ -174,6 +179,7 @@ public class Connector {
                 return list;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Added " + count + " records");
         }
     }
@@ -181,9 +187,8 @@ public class Connector {
     public static List<Integer> insertIntoCustomers(List<Customer> customers) throws BankException {
         String query = "insert into customers (name, mobile, address) values (?,?,?)";
         int count = 0;
-        Connection connection = getConnection();
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
-            connection.setAutoCommit(false);
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
+            getConnection().setAutoCommit(false);
             List<Integer> list = new ArrayList<>();
             for (Customer customer : customers) {
                 preparedStatement.setString(1, customer.getName());
@@ -192,14 +197,16 @@ public class Connector {
                 preparedStatement.addBatch();
             }
             count = preparedStatement.executeBatch().length;
-            connection.commit();
+            getConnection().commit();
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 while (resultSet.next()) {
                     list.add(resultSet.getInt(1));
                 }
                 return list;
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Added " + count + " records");
         }
     }
@@ -213,6 +220,7 @@ public class Connector {
             preparedStatement.executeUpdate();
             return getBalance(accountNumber);
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Money Withdrawal failed");
         }
     }
@@ -226,6 +234,7 @@ public class Connector {
             preparedStatement.executeUpdate();
             return getBalance(accountNumber);
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Money deposit failed");
         }
     }
@@ -240,6 +249,7 @@ public class Connector {
                 return -1;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Could not load balance");
         }
     }
