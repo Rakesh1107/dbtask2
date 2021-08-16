@@ -11,10 +11,11 @@ public class Mediator {
 
     public static void extract() throws BankException {
         List<Account> accounts = Connector.getAccounts();
-        Cache.addToCache(accounts);
-
         List<Customer> customers = Connector.getCustomers();
+
+        Cache.addToCache(accounts, customers);
         Cache.addToUsers(customers);
+
     }
 
     public static int insertCustomer(Customer customer) throws BankException {
@@ -39,5 +40,13 @@ public class Mediator {
         } else {
             return Connector.depositMoney(accountNumber, amount);
         }
+    }
+
+    public static boolean deactivateAccount(long accountNumber) throws BankException {
+        return Connector.deactivateAccount(accountNumber);
+    }
+
+    public static boolean deactivateUser(int userid) throws BankException {
+        return Connector.deactivateUser(userid);
     }
 }
