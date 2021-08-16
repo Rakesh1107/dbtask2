@@ -4,7 +4,6 @@ import exception.BankException;
 import pojo.Account;
 import logic.DataHandler;
 import logic.Initiator;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -15,17 +14,19 @@ public class Input {
     static BufferedReader inputReader = new BufferedReader(new InputStreamReader(System.in));
 
     public static void getInput() {
+        int option;
         try {
             Initiator.initiate();
-            Display.showWelcomeMessage();
 
-            int option = getInt();
-            while(option != 0) {
+            Display.showWelcomeMessage();
+            option = getInt();
+
+            while (option != 0) {
                 handle(option);
+
                 Display.showWelcomeMessage();
                 option = getInt();
             }
-
             Display.closeApplication();
         } catch (BankException e) {
             System.out.println(e.getMessage());
@@ -37,96 +38,120 @@ public class Input {
             switch (option) {
                 case 1:
                     Display.showNewUser();
-                    long[] data = DataHandler.createNewUser(getString(), getLong(), getString(), getString());
-                    if (data == null) {
-                        Display.failed("User creation");
-                    } else {
+                    String name = getString();
+                    long accountNumber = getLong();
+                    String branch = getString();
+                    String address = getString();
+                    if (validator(name, branch, address)) {
+                        long[] data = DataHandler.createNewUser(name, accountNumber, branch, address);
                         Display.showUserData(data);
+                    } else {
+                        System.out.println("All fields must be filled");
                     }
-
                     break;
                 case 2:
                     Display.showNewAccount();
-                    long accountNumber = DataHandler.createNewAccount(getInt(), getString());
-                    if(accountNumber == -1) {
-                        Display.userIdNotFound();
+                    int userId = getInt();
+                    branch = getString();
+                    if (validator(branch)) {
+                        long accountNo = DataHandler.createNewAccount(userId, branch);
+                        if (accountNo == -1) {
+                            Display.userIdNotFound();
+                        } else {
+                            Display.showAccountNumber(accountNo);
+                        }
                     } else {
-                        Display.showAccountNumber(accountNumber);
+                        System.out.println("All fields must be filled");
                     }
                     break;
                 case 3:
                     Display.askUserId();
-                    long balance = DataHandler.checkBalance(getInt());
-                    if(balance == -1) {
-                        Display.userIdNotFound();
-                    }
-                    else {
-                        Display.showBalance(balance);
-                    }
+                    userId = getInt();
+                    long balance = DataHandler.checkBalance(userId);
+                    Display.showBalance(balance);
                     break;
                 case 4:
                     Display.askUserId();
-                    List<Account> list = DataHandler.showAccounts(getInt());
-                    if (list == null) {
-                        Display.userIdNotFound();
-                    }
-                    else {
-                        Display.printAccounts(list);
-                    }
+                    userId = getInt();
+                    List<Account> list = DataHandler.showAccounts(userId);
+                    Display.printAccounts(list);
                     break;
                 case 5:
                     System.out.println("Enter user id");
                     System.out.println("Enter amount to deposit");
-                    long newBalance = DataHandler.depositMoney(getInt(), getLong());
-                    if (newBalance != -1) {
-                        System.out.println("Your new balance is " + newBalance);
-                    }
+                    userId = getInt();
+                    long amount = getLong();
+                    long newBalance = DataHandler.depositMoney(userId, amount);
+                    System.out.println("Your new balance is " + newBalance);
                     break;
                 case 6:
                     System.out.println("Enter user id");
                     System.out.println("Enter amount to withdraw");
-                    long newBalance2 = DataHandler.withdrawMoney(getInt(), getLong());
-                    if (newBalance2 != -1) {
-                        System.out.println("Your new balance is " + newBalance2);
+                    userId = getInt();
+                    amount = getLong();
+                    newBalance = DataHandler.withdrawMoney(userId, amount);
+                    System.out.println("Your new balance is " + newBalance);
+                    break;
+                case 7:
+                    System.out.println("Enter user id");
+                    userId = getInt();
+                    System.out.println("1. Delete account");
+                    System.out.println("2. Delete user");
+                    option = getInt();
+                    if (option == 1) {
+                        if(DataHandler.deactivateAccount(userId)) {
+                            System.out.println("Account deleted successfully");
+                        }
+                    } else if (option == 2) {
+                        if(DataHandler.deactivateUser(userId)) {
+                            System.out.println("User deleted successfully");
+                        }
+                    } else {
+                        System.out.println("Enter valid option");
                     }
                     break;
+
                 default:
                     Display.enterValidInput();
             }
-        }
-        catch (BankException e) {
+        } catch (BankException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public static String getString() {
-        try {
-            return inputReader.readLine();
+    private static boolean validator(String... fields) {
+        for (String field : fields) {
+            if (field == null || field.length() == 0) {
+                return false;
+            }
         }
-        catch (IOException e) {
-            System.out.println("Invalid input");
-        }
-        return null;
+        return true;
     }
 
-    public static long getLong() {
+    public static String getString() throws BankException {
+        try {
+            return inputReader.readLine();
+        } catch (NumberFormatException | IOException e) {
+            throw new BankException("Invalid input");
+        }
+    }
+
+    public static long getLong() throws BankException {
         try {
             return Long.parseLong(inputReader.readLine());
         }
-        catch (IOException e) {
-            System.out.println("Invalid input");
+        catch (NumberFormatException | IOException e) {
+            throw new BankException("Enter a valid number");
         }
-        return -1;
     }
 
-    public static int getInt() {
+    public static int getInt() throws BankException {
         try {
             return Integer.parseInt(inputReader.readLine());
         }
-        catch (IOException e) {
-            System.out.println("Invalid input");
+        catch (NumberFormatException | IOException e) {
+            throw new BankException("Enter a valid number");
         }
-        return -1;
 
     }
 

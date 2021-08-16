@@ -3,7 +3,6 @@ package db;
 import exception.BankException;
 import pojo.Account;
 import pojo.Customer;
-import java.util.Iterator;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -21,14 +20,9 @@ public class Connector {
         customer1.setAddress("Bengaluru");
 
         Customer customer2 = new Customer();
-//        customer2.setName("Umesh");
+        customer2.setName("Ramesh");
         customer2.setMobileNumber(981822891);
-        customer2.setAddress("Delhi");
-
-//        Customer customer3 = new Customer();
-//        customer3.setName("Rohit");
-//        customer3.setMobileNumber(82132819);
-//        customer3.setAddress("Mumbai");
+        customer2.setAddress("Chennai");
 
         customers.add(customer1);
         customers.add(customer2);
@@ -55,6 +49,7 @@ public class Connector {
                 connection = DriverManager.getConnection(url, user, password);
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Connecting to database failed");
         }
         return connection;
@@ -64,7 +59,7 @@ public class Connector {
         List<Customer> customers = new ArrayList<>();
 
         try (Statement statement = getConnection().createStatement()) {
-            String selectQuery = "select * from customers";
+            String selectQuery = "select * from customers where active=1";
 
             try (ResultSet resultSet = statement.executeQuery(selectQuery)) {
                 while (resultSet.next()) {
@@ -83,8 +78,9 @@ public class Connector {
                 }
                 return customers;
             }
-        } catch (SQLException e) {
-            throw new BankException("Unable to retrieve users at the moment");
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            throw new BankException("Unable to retrieve users at the moment", exception);
         }
     }
 
@@ -92,7 +88,7 @@ public class Connector {
         List<Account> accounts = new ArrayList<>();
 
         try (Statement statement = getConnection().createStatement()) {
-            String selectQuery = "select * from accounts";
+            String selectQuery = "select * from accounts where active=1";
             try (ResultSet resultSet = statement.executeQuery(selectQuery)) {
                 while (resultSet.next()) {
 
@@ -111,12 +107,15 @@ public class Connector {
                 }
                 return accounts;
             }
-        } catch (SQLException e) {
-            throw new BankException("Unable to retrieve accounts at the moment");
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            throw new BankException("Unable to retrieve accounts at the moment", exception);
         }
     }
 
     public static long insertIntoAccounts(Account account) throws BankException {
+        if (account == null) throw new BankException("Invalid account details");
+
         String query = "insert into accounts (userid, balance, branch) values (?,?,?)";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, account.getUserId());
@@ -129,12 +128,15 @@ public class Connector {
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Adding account failed");
         }
         return -1;
     }
 
     public static int insertIntoCustomers(Customer customer) throws BankException {
+        if (customer == null) throw new BankException("Invalid customer details");
+
         String query = "insert into customers (name, mobile, address) values (?,?,?)";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, customer.getName());
@@ -147,6 +149,7 @@ public class Connector {
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Adding user failed");
         }
         return -1;
@@ -154,6 +157,8 @@ public class Connector {
 
 
     public static List<Integer> insertIntoAccounts(List<Account> accounts) throws BankException {
+        if (accounts == null || accounts.size() == 0) throw new BankException("Empty batch");
+
         String query = "insert into accounts (userid, balance, branch) values (?,?,?)";
         int count = 0;
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -174,16 +179,18 @@ public class Connector {
                 return list;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Added " + count + " records");
         }
     }
 
     public static List<Integer> insertIntoCustomers(List<Customer> customers) throws BankException {
+        if (customers == null || customers.size() == 0) throw new BankException("Empty batch");
+
         String query = "insert into customers (name, mobile, address) values (?,?,?)";
         int count = 0;
-        Connection connection = getConnection();
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
-            connection.setAutoCommit(false);
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
+            getConnection().setAutoCommit(false);
             List<Integer> list = new ArrayList<>();
             for (Customer customer : customers) {
                 preparedStatement.setString(1, customer.getName());
@@ -192,7 +199,7 @@ public class Connector {
                 preparedStatement.addBatch();
             }
             count = preparedStatement.executeBatch().length;
-            connection.commit();
+            getConnection().commit();
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 while (resultSet.next()) {
                     list.add(resultSet.getInt(1));
@@ -200,6 +207,7 @@ public class Connector {
                 return list;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Added " + count + " records");
         }
     }
@@ -213,6 +221,7 @@ public class Connector {
             preparedStatement.executeUpdate();
             return getBalance(accountNumber);
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Money Withdrawal failed");
         }
     }
@@ -226,6 +235,7 @@ public class Connector {
             preparedStatement.executeUpdate();
             return getBalance(accountNumber);
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Money deposit failed");
         }
     }
@@ -240,7 +250,33 @@ public class Connector {
                 return -1;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BankException("Could not load balance");
         }
+    }
+
+    public static boolean deactivateAccount (long accountNumber) throws BankException {
+        String query = "update accounts set active = 0 where acc_no = ?";
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)){
+            preparedStatement.setLong(1, accountNumber);
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new BankException("Deleting account failed");
+        }
+    }
+
+    public static boolean deactivateUser (int userid) throws BankException {
+        String query = "update customers set active = 0 where userid = ?";
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)){
+            preparedStatement.setInt(1, userid);
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new BankException("Deleting account failed");
+        }
+
     }
 }

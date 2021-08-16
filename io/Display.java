@@ -13,6 +13,7 @@ public class Display {
         out.println("4. Show accounts ");
         out.println("5. Deposit Money ");
         out.println("6. Withdraw money ");
+        out.println("7. Delete User/Account ");
         out.println("Enter 0 to exit");
 
     }
@@ -63,7 +64,4 @@ public class Display {
         out.println("Your account number is " + accountNumber);
     }
 
-    public static void failed(String message) {
-        out.println(message + " failed");
-    }
 }

@@ -6,6 +6,7 @@ public class Customer {
     private String name;
     private long mobileNumber;
     private String address;
+    private long time;
 
     public int getUserId() {
         return userId;
@@ -47,5 +48,13 @@ public class Customer {
                 ", mobileNumber=" + mobileNumber +
                 ", address='" + address + '\'' +
                 '}';
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 }

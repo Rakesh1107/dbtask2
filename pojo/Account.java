@@ -6,6 +6,7 @@ public class Account {
     private long accountNumber;
     private long balance = 0;
     private String branch;
+    private long time;
 
     public int getUserId() {
         return userId;
@@ -49,4 +50,11 @@ public class Account {
                 '}';
     }
 
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
 }
