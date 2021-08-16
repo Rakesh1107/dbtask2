@@ -6,11 +6,25 @@ import io.Input;
 import pojo.Account;
 import pojo.Customer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class DataHandler {
+
+    public static void main(String[] args) {
+        DateFormat formatter = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+        formatter.setTimeZone(TimeZone.getTimeZone("India"));
+        formatter.setTimeZone(TimeZone.getDefault());
+        System.out.println(TimeZone.getDefault().getID());
+        Calendar calendar = Calendar.getInstance();
+        String[] arr = TimeZone.getAvailableIDs();
+        for (String s: arr) {
+            System.out.println(s);
+        }
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        System.out.println(formatter.format(calendar.getTime()));
+    }
 
     private static boolean validate(String... fields) {
         for (String field: fields) {
@@ -33,7 +47,7 @@ public class DataHandler {
     }
 
     public static long[] createNewUser(String name, long mobileNumber, String address, String branch) throws BankException {
-        /*Pattern pattern = Pattern.compile("[A-Za-z]+");
+    /*    Pattern pattern = Pattern.compile("[A-Za-z]+");
           Matcher matcher = pattern.matcher(name);
           boolean match = matcher.find(); */
 
@@ -43,7 +57,7 @@ public class DataHandler {
                 customer.setName(name);
                 customer.setMobileNumber(mobileNumber);
                 customer.setAddress(address);
-                customer.setTime(System.currentTimeMillis());
+                //customer.setTime(System.currentTimeMillis());
 
                 int userId = Mediator.insertCustomer(customer);
                 if (userId != -1) {
@@ -52,6 +66,7 @@ public class DataHandler {
                     Account account = new Account();
                     account.setUserId(userId);
                     account.setBranch(branch);
+                    //account.setTime(System.currentTimeMillis());
                     long accountNumber = Mediator.insertAccount(account);
 
                     if (accountNumber != -1) {
