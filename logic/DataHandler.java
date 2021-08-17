@@ -27,7 +27,7 @@ public class DataHandler {
     }
 
     private static boolean validate(String... fields) {
-        for (String field: fields) {
+        for (String field : fields) {
             if (field == null || field.length() == 0) {
                 return false;
             }
@@ -53,7 +53,7 @@ public class DataHandler {
 
         if (validate(name, branch, address, String.valueOf(mobileNumber))) {
 
-            if(validateMobileNumber(mobileNumber)) {
+            if (validateMobileNumber(mobileNumber)) {
                 Customer customer = new Customer();
                 customer.setName(name);
                 customer.setMobileNumber(mobileNumber);
@@ -110,8 +110,7 @@ public class DataHandler {
             } else {
                 throw new BankException("Account creation failed");
             }
-        }
-        else {
+        } else {
             throw new BankException("Branch can not be empty");
         }
     }
@@ -129,8 +128,7 @@ public class DataHandler {
                 balance += account.getBalance();
             }
             return balance;
-        }
-        else {
+        } else {
             throw new BankException("User id field can not be empty");
         }
     }
@@ -149,19 +147,19 @@ public class DataHandler {
                     int i = 0;
                     System.out.println("Select account");
 
-                    for (Account account: userAccounts) {
+                    for (Account account : userAccounts) {
                         System.out.println(++i + ". " + account.getAccountNumber());
                     }
 
                     int option = Input.getInt();
 
-                    if(option > 0 && option <= userAccounts.size()) {
-                        long oldBalance = userAccounts.get(option-1).getBalance();
+                    if (option > 0 && option <= userAccounts.size()) {
+                        long oldBalance = userAccounts.get(option - 1).getBalance();
                         System.out.println(oldBalance);
-                        if(oldBalance >= amount) {
-                            long accountToUpdate = userAccounts.get(option-1).getAccountNumber();
+                        if (oldBalance >= amount) {
+                            long accountToUpdate = userAccounts.get(option - 1).getAccountNumber();
                             long newBalance = Mediator.updateBalance(1, accountToUpdate, amount);
-                            userAccounts.get(option-1).setBalance(oldBalance-amount);
+                            userAccounts.get(option - 1).setBalance(oldBalance - amount);
                             return newBalance;
                         } else {
                             throw new BankException("Insufficient funds");
@@ -169,15 +167,15 @@ public class DataHandler {
                     } else {
                         throw new BankException("Account does not exist");
                     }
-                }
-                else {
+                } else {
                     throw new BankException("User id does not exist");
                 }
             } else {
                 throw new BankException("Amount can not be 0 or negative");
             }
+        } else {
+            throw new BankException("User id field can not be empty");
         }
-        throw new BankException("User id field can not be empty");
 
     }
 
@@ -193,26 +191,24 @@ public class DataHandler {
                 int i = 0;
                 System.out.println("Select account");
 
-                for (Account account: userAccounts) {
+                for (Account account : userAccounts) {
                     System.out.println(++i + ". " + account.getAccountNumber());
                 }
                 int option = Input.getInt();
 
-                if(option > 0 && option <= userAccounts.size()) {
-                    long accountToUpdate = userAccounts.get(option-1).getAccountNumber();
-                    long oldBalance = userAccounts.get(option-1).getBalance();
+                if (option > 0 && option <= userAccounts.size()) {
+                    long accountToUpdate = userAccounts.get(option - 1).getAccountNumber();
+                    long oldBalance = userAccounts.get(option - 1).getBalance();
                     long newBalance = Mediator.updateBalance(2, accountToUpdate, amount);
-                    userAccounts.get(option-1).setBalance(oldBalance+amount); // updating in cache
+                    userAccounts.get(option - 1).setBalance(oldBalance + amount); // updating in cache
                     return newBalance;
                 } else {
                     throw new BankException("Account number does not exist");
                 }
-            }
-            else {
+            } else {
                 throw new BankException("User id not found");
             }
-        }
-        else {
+        } else {
             throw new BankException("User id field can not be null");
         }
 
@@ -223,8 +219,7 @@ public class DataHandler {
         if (validate(String.valueOf(userId))) {
             if (!Cache.getCache().containsKey(userId)) {
                 throw new BankException("User id does not exist");
-            }
-            else {
+            } else {
                 if (Cache.getCache().get(userId).isEmpty()) {
                     throw new BankException("No accounts available");
                 } else {
@@ -232,8 +227,10 @@ public class DataHandler {
                 }
             }
 
+        } else {
+            throw new BankException("User id field can not be empty");
         }
-        throw new BankException("User id field can not be empty");
+
     }
 
     public static boolean deactivateAccount(int userId) throws BankException {
@@ -248,13 +245,13 @@ public class DataHandler {
                 int i = 0;
                 System.out.println("Select account");
 
-                for (Account account: userAccounts) {
+                for (Account account : userAccounts) {
                     System.out.println(++i + ". " + account.getAccountNumber());
                 }
                 int option = Input.getInt();
 
                 if (option > 0 && option <= userAccounts.size()) {
-                    long accountNumber = userAccounts.get(option-1).getAccountNumber();
+                    long accountNumber = userAccounts.get(option - 1).getAccountNumber();
                     if (Mediator.deactivateAccount(accountNumber)) {
                         Cache.getCache().get(userId).remove(accountNumber);
                         if (!Cache.getCache().containsKey(userId)) {
@@ -266,12 +263,10 @@ public class DataHandler {
                 } else {
                     throw new BankException("Account number does not exist");
                 }
-            }
-            else {
+            } else {
                 throw new BankException("User id does not exist");
             }
-        }
-        else {
+        } else {
             throw new BankException("User id field can not be empty");
         }
         return false;
@@ -284,11 +279,10 @@ public class DataHandler {
                     Cache.getCache().remove(userId);
                     return true;
                 }
-            } else{
+            } else {
                 throw new BankException("User id does not exist");
             }
-        }
-        else {
+        } else {
             throw new BankException("User id field can not be empty");
         }
         return false;

@@ -1,7 +1,7 @@
 package logic;
 
 import cache.Cache;
-import db.Connector;
+import persistence.Connector;
 import exception.BankException;
 import pojo.Account;
 import pojo.Customer;
@@ -11,9 +11,11 @@ public class Mediator {
 
     public static void load() throws BankException {
         List<Account> accounts = Connector.getAccounts();
+        List<Integer> usersWithNoActiveAccounts = Connector.getUsersWithNoActiveAccounts();
         List<Customer> customers = Connector.getCustomers();
 
-        Cache.addToCache(accounts, customers);
+        Cache.addToCache(accounts);
+        Cache.addUsersWithNoActiveAccounts(usersWithNoActiveAccounts);
         Cache.addToUsers(customers);
 
     }

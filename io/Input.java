@@ -17,19 +17,19 @@ public class Input {
         int option;
         try {
             Initiator.initiate();
-
             Display.showWelcomeMessage();
             option = getInt();
 
             while (option != 0) {
                 handle(option);
-
                 Display.showWelcomeMessage();
                 option = getInt();
             }
+
             Display.closeApplication();
         } catch (BankException exception) {
             System.out.println(exception.getMessage());
+            getInput();
         }
     }
 
@@ -55,7 +55,7 @@ public class Input {
                         long[] data = DataHandler.createNewUser(name, accountNumber, branch, address);
                         Display.showUserData(data);
                     } else {
-                        System.out.println("All fields must be filled");
+                        System.out.println("All fields must be filled !");
                     }
                     break;
                 case 2:
@@ -70,7 +70,7 @@ public class Input {
                             Display.showAccountNumber(accountNo);
                         }
                     } else {
-                        System.out.println("All fields must be filled");
+                        System.out.println("All fields must be filled !");
                     }
                     break;
                 case 3:
@@ -116,7 +116,7 @@ public class Input {
                             System.out.println("User deleted successfully");
                         }
                     } else {
-                        System.out.println("Enter valid option");
+                        System.out.println("Enter valid option !");
                     }
                     break;
 
@@ -132,7 +132,7 @@ public class Input {
         try {
             return inputReader.readLine();
         } catch (NumberFormatException | IOException exception) {
-            throw new BankException("Invalid input", exception);
+            throw new BankException("Invalid input!", exception);
         }
     }
 
@@ -141,7 +141,7 @@ public class Input {
             return Long.parseLong(inputReader.readLine());
         }
         catch (NumberFormatException | IOException exception) {
-            throw new BankException("Enter a valid number", exception);
+            throw new BankException("Enter a valid number!", exception);
         }
     }
 
@@ -150,7 +150,7 @@ public class Input {
             return Integer.parseInt(inputReader.readLine());
         }
         catch (NumberFormatException | IOException exception) {
-            throw new BankException("Enter a valid number", exception);
+            throw new BankException("Enter a valid number!", exception);
         }
 
     }

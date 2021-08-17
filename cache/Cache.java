@@ -14,7 +14,7 @@ public class Cache {
     private static final Map<Integer, Customer> users = new HashMap<>();
     //private static final List<Long> userAccounts = new ArrayList<>();
 
-    public static void addToCache(List<Account> accounts, List<Customer> customers) {
+    public static void addToCache(List<Account> accounts) {
         for (Account account : accounts) {
             int userId = account.getUserId();
             long accountNumber = account.getAccountNumber();
@@ -23,11 +23,11 @@ public class Cache {
             accountMap.put(accountNumber, account);
             //userAccounts.add(accountNumber);
         }
-        for (Customer customer: customers) {
-            if (!cache.containsKey(customer.getUserId())) {
-//                System.out.println(customer.getUserId());
-                cache.put(customer.getUserId(), new HashMap<>());
-            }
+    }
+
+    public static void addUsersWithNoActiveAccounts(List<Integer> list) {
+        for(int userId: list) {
+            cache.put(userId, new HashMap<>());
         }
     }
 

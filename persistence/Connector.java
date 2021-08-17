@@ -1,4 +1,4 @@
-package db;
+package persistence;
 
 import exception.BankException;
 import pojo.Account;
@@ -282,5 +282,25 @@ public class Connector {
             throw new BankException("Deleting account failed", exception);
         }
 
+    }
+
+    public static List<Integer> getUsersWithNoActiveAccounts() throws BankException {
+        List<Integer> users = new ArrayList<>();
+
+        try (Statement statement = getConnection().createStatement()) {
+            String selectQuery = "select distinct b.userid from customers a, accounts b where \n" +
+                                 "a.userid = b.userid and a.active = 1 and b.active = 0";
+
+            try (ResultSet resultSet = statement.executeQuery(selectQuery)) {
+                while (resultSet.next()) {
+                    int userId = resultSet.getInt(1);
+                    users.add(userId);
+                }
+                return users;
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            throw new BankException("Unable to retrieve accounts at the moment", exception);
+        }
     }
 }
