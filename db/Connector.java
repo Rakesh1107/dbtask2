@@ -41,7 +41,7 @@ public class Connector {
     static Connection connection;
     private static final String url = "jdbc:mysql://localhost:3306/bankdb?autoReconnect=true&useSSL=false";
     private static final String user = "root";
-    private static final String password = "1234";
+    private static final String password = "8532";
 
     public static Connection getConnection() throws BankException {
         try {
@@ -78,10 +78,13 @@ public class Connector {
                 }
                 return customers;
             }
+
         } catch (SQLException exception) {
             exception.printStackTrace();
             throw new BankException("Unable to retrieve users at the moment", exception);
-        }
+
+        } 
+       
     }
 
     public static List<Account> getAccounts() throws BankException {
@@ -107,10 +110,12 @@ public class Connector {
                 }
                 return accounts;
             }
+
         } catch (SQLException exception) {
             exception.printStackTrace();
             throw new BankException("Unable to retrieve accounts at the moment", exception);
-        }
+
+        } 
     }
 
     public static long insertIntoAccounts(Account account) throws BankException {
@@ -211,9 +216,12 @@ public class Connector {
                 return list;
             }
         } catch (SQLException exception) {
+
             exception.printStackTrace();
             throw new BankException("Added " + count + " records", exception);
+
         }
+       
     }
 
     public static long withdrawMoney(long accountNumber, long amount) throws BankException {
