@@ -28,9 +28,18 @@ public class Input {
                 option = getInt();
             }
             Display.closeApplication();
-        } catch (BankException e) {
-            System.out.println(e.getMessage());
+        } catch (BankException exception) {
+            System.out.println(exception.getMessage());
         }
+    }
+
+    private static boolean validate(String... fields) {
+        for (String field : fields) {
+            if (field == null || field.length() == 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static void handle(int option) {
@@ -42,7 +51,7 @@ public class Input {
                     long accountNumber = getLong();
                     String branch = getString();
                     String address = getString();
-                    if (validator(name, branch, address)) {
+                    if (validate(name, branch, address)) {
                         long[] data = DataHandler.createNewUser(name, accountNumber, branch, address);
                         Display.showUserData(data);
                     } else {
@@ -53,7 +62,7 @@ public class Input {
                     Display.showNewAccount();
                     int userId = getInt();
                     branch = getString();
-                    if (validator(branch)) {
+                    if (validate(branch)) {
                         long accountNo = DataHandler.createNewAccount(userId, branch);
                         if (accountNo == -1) {
                             Display.userIdNotFound();
@@ -114,25 +123,16 @@ public class Input {
                 default:
                     Display.enterValidInput();
             }
-        } catch (BankException e) {
-            System.out.println(e.getMessage());
+        } catch (BankException exception) {
+            System.out.println(exception.getMessage());
         }
-    }
-
-    private static boolean validator(String... fields) {
-        for (String field : fields) {
-            if (field == null || field.length() == 0) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public static String getString() throws BankException {
         try {
             return inputReader.readLine();
-        } catch (NumberFormatException | IOException e) {
-            throw new BankException("Invalid input");
+        } catch (NumberFormatException | IOException exception) {
+            throw new BankException("Invalid input", exception);
         }
     }
 
@@ -140,8 +140,8 @@ public class Input {
         try {
             return Long.parseLong(inputReader.readLine());
         }
-        catch (NumberFormatException | IOException e) {
-            throw new BankException("Enter a valid number");
+        catch (NumberFormatException | IOException exception) {
+            throw new BankException("Enter a valid number", exception);
         }
     }
 
@@ -149,8 +149,8 @@ public class Input {
         try {
             return Integer.parseInt(inputReader.readLine());
         }
-        catch (NumberFormatException | IOException e) {
-            throw new BankException("Enter a valid number");
+        catch (NumberFormatException | IOException exception) {
+            throw new BankException("Enter a valid number", exception);
         }
 
     }

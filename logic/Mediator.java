@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Mediator {
 
-    public static void extract() throws BankException {
+    public static void load() throws BankException {
         List<Account> accounts = Connector.getAccounts();
         List<Customer> customers = Connector.getCustomers();
 
