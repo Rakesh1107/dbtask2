@@ -116,20 +116,21 @@ public class Connector {
     public static long insertIntoAccounts(Account account) throws BankException {
         if (account == null) throw new BankException("Invalid account details");
 
-        String query = "insert into accounts (userid, balance, branch) values (?,?,?)";
+        String query = "insert into accounts (userid, balance, branch, time) values (?,?,?,?)";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, account.getUserId());
             preparedStatement.setLong(2, account.getBalance());
             preparedStatement.setString(3, account.getBranch());
+            preparedStatement.setLong(4, account.getTime());
             preparedStatement.executeUpdate();
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 if (resultSet.next()) {
                     return resultSet.getInt(1);
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new BankException("Adding account failed");
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            throw new BankException("Adding account failed", exception);
         }
         return -1;
     }
@@ -137,20 +138,21 @@ public class Connector {
     public static int insertIntoCustomers(Customer customer) throws BankException {
         if (customer == null) throw new BankException("Invalid customer details");
 
-        String query = "insert into customers (name, mobile, address) values (?,?,?)";
+        String query = "insert into customers (name, mobile, address, time) values (?,?,?,?)";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, customer.getName());
             preparedStatement.setLong(2, customer.getMobileNumber());
             preparedStatement.setString(3, customer.getAddress());
+            preparedStatement.setLong(4, customer.getTime());
             preparedStatement.executeUpdate();
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 if (resultSet.next()) {
                     return resultSet.getInt(1);
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new BankException("Adding user failed");
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            throw new BankException("Adding user failed", exception);
         }
         return -1;
     }
@@ -159,7 +161,7 @@ public class Connector {
     public static List<Integer> insertIntoAccounts(List<Account> accounts) throws BankException {
         if (accounts == null || accounts.size() == 0) throw new BankException("Empty batch");
 
-        String query = "insert into accounts (userid, balance, branch) values (?,?,?)";
+        String query = "insert into accounts (userid, balance, branch, time) values (?,?,?,?)";
         int count = 0;
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             List<Integer> list = new ArrayList<>();
@@ -168,6 +170,7 @@ public class Connector {
                 preparedStatement.setInt(1, account.getUserId());
                 preparedStatement.setLong(2, account.getBalance());
                 preparedStatement.setString(3, account.getBranch());
+                preparedStatement.setLong(4, account.getTime());
                 preparedStatement.addBatch();
             }
             count = preparedStatement.executeBatch().length;
@@ -178,16 +181,16 @@ public class Connector {
                 }
                 return list;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new BankException("Added " + count + " records");
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            throw new BankException("Added " + count + " records", exception);
         }
     }
 
     public static List<Integer> insertIntoCustomers(List<Customer> customers) throws BankException {
         if (customers == null || customers.size() == 0) throw new BankException("Empty batch");
 
-        String query = "insert into customers (name, mobile, address) values (?,?,?)";
+        String query = "insert into customers (name, mobile, address, time) values (?,?,?,?)";
         int count = 0;
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
             getConnection().setAutoCommit(false);
@@ -196,6 +199,7 @@ public class Connector {
                 preparedStatement.setString(1, customer.getName());
                 preparedStatement.setLong(2, customer.getMobileNumber());
                 preparedStatement.setString(3, customer.getAddress());
+                preparedStatement.setLong(4, customer.getTime());
                 preparedStatement.addBatch();
             }
             count = preparedStatement.executeBatch().length;
@@ -206,9 +210,9 @@ public class Connector {
                 }
                 return list;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new BankException("Added " + count + " records");
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            throw new BankException("Added " + count + " records", exception);
         }
     }
 
@@ -220,9 +224,9 @@ public class Connector {
             preparedStatement.setLong(2, accountNumber);
             preparedStatement.executeUpdate();
             return getBalance(accountNumber);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new BankException("Money Withdrawal failed");
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            throw new BankException("Money Withdrawal failed", exception);
         }
     }
 
@@ -234,9 +238,9 @@ public class Connector {
             preparedStatement.setLong(2, accountNumber);
             preparedStatement.executeUpdate();
             return getBalance(accountNumber);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new BankException("Money deposit failed");
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            throw new BankException("Money deposit failed", exception);
         }
     }
 
@@ -249,9 +253,9 @@ public class Connector {
                 }
                 return -1;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new BankException("Could not load balance");
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            throw new BankException("Could not load balance", exception);
         }
     }
 
@@ -261,9 +265,9 @@ public class Connector {
             preparedStatement.setLong(1, accountNumber);
             preparedStatement.executeUpdate();
             return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new BankException("Deleting account failed");
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            throw new BankException("Deleting account failed", exception);
         }
     }
 
@@ -273,9 +277,9 @@ public class Connector {
             preparedStatement.setInt(1, userid);
             preparedStatement.executeUpdate();
             return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new BankException("Deleting account failed");
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            throw new BankException("Deleting account failed", exception);
         }
 
     }

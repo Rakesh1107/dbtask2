@@ -13,15 +13,15 @@ import java.util.*;
 public class DataHandler {
 
     public static void main(String[] args) {
+        System.out.println(System.currentTimeMillis());
         DateFormat formatter = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
-        formatter.setTimeZone(TimeZone.getTimeZone("India"));
         formatter.setTimeZone(TimeZone.getDefault());
         System.out.println(TimeZone.getDefault().getID());
         Calendar calendar = Calendar.getInstance();
-        String[] arr = TimeZone.getAvailableIDs();
-        for (String s: arr) {
-            System.out.println(s);
-        }
+//        String[] arr = TimeZone.getAvailableIDs();
+//        for (String s: arr) {
+//            System.out.println(s);
+//        }
         calendar.setTimeInMillis(System.currentTimeMillis());
         System.out.println(formatter.format(calendar.getTime()));
     }
@@ -52,21 +52,21 @@ public class DataHandler {
           boolean match = matcher.find(); */
 
         if (validate(name, branch, address, String.valueOf(mobileNumber))) {
+
             if(validateMobileNumber(mobileNumber)) {
                 Customer customer = new Customer();
                 customer.setName(name);
                 customer.setMobileNumber(mobileNumber);
                 customer.setAddress(address);
-                //customer.setTime(System.currentTimeMillis());
-
+                customer.setTime(System.currentTimeMillis());
                 int userId = Mediator.insertCustomer(customer);
+
                 if (userId != -1) {
                     customer.setUserId(userId);
-
                     Account account = new Account();
                     account.setUserId(userId);
                     account.setBranch(branch);
-                    //account.setTime(System.currentTimeMillis());
+                    account.setTime(System.currentTimeMillis());
                     long accountNumber = Mediator.insertAccount(account);
 
                     if (accountNumber != -1) {
@@ -75,7 +75,6 @@ public class DataHandler {
                         Cache.getCache().put(userId, new HashMap<>());
                         Cache.getCache().get(userId).put(accountNumber, account);
                         //Cache.getAccounts().add(accountNumber);
-
                         return new long[]{userId, accountNumber};
                     }
                     throw new BankException("Account creation failed");
@@ -99,6 +98,7 @@ public class DataHandler {
             account = new Account();
             account.setUserId(userId);
             account.setBranch(branch);
+            account.setTime(System.currentTimeMillis());
 
             long accountNumber = Mediator.insertAccount(account);
 
@@ -121,6 +121,9 @@ public class DataHandler {
             if (!Cache.getCache().containsKey(userId)) {
                 throw new BankException("User id not found");
             }
+            if (Cache.getCache().get(userId).isEmpty()) {
+                throw new BankException("No accounts available");
+            }
             long balance = 0;
             for (Account account : Cache.getCache().get(userId).values()) {
                 balance += account.getBalance();
@@ -137,6 +140,11 @@ public class DataHandler {
         if (validate(String.valueOf(userId), String.valueOf(amount))) {
             if (amount > 0) {
                 if (Cache.getCache().containsKey(userId)) {
+
+                    if (Cache.getCache().get(userId).isEmpty()) {
+                        throw new BankException("No accounts available");
+                    }
+
                     List<Account> userAccounts = new ArrayList<>(Cache.getCache().get(userId).values());
                     int i = 0;
                     System.out.println("Select account");
@@ -176,6 +184,11 @@ public class DataHandler {
     public static long depositMoney(int userId, long amount) throws BankException {
         if (validate(String.valueOf(userId), String.valueOf(amount))) {
             if (Cache.getCache().containsKey(userId)) {
+
+                if (Cache.getCache().get(userId).isEmpty()) {
+                    throw new BankException("No accounts available");
+                }
+
                 List<Account> userAccounts = new ArrayList<>(Cache.getCache().get(userId).values());
                 int i = 0;
                 System.out.println("Select account");
@@ -211,8 +224,14 @@ public class DataHandler {
             if (!Cache.getCache().containsKey(userId)) {
                 throw new BankException("User id does not exist");
             }
-            else
-                return new ArrayList<>(Cache.getCache().get(userId).values());
+            else {
+                if (Cache.getCache().get(userId).isEmpty()) {
+                    throw new BankException("No accounts available");
+                } else {
+                    return new ArrayList<>(Cache.getCache().get(userId).values());
+                }
+            }
+
         }
         throw new BankException("User id field can not be empty");
     }
@@ -220,11 +239,11 @@ public class DataHandler {
     public static boolean deactivateAccount(int userId) throws BankException {
         if (validate(String.valueOf(userId))) {
             if (Cache.getCache().containsKey(userId)) {
-                List<Account> userAccounts = new ArrayList<>(Cache.getCache().get(userId).values());
-
-                if (userAccounts.isEmpty()) {
+                if (Cache.getCache().get(userId).isEmpty()) {
                     throw new BankException("No accounts available");
                 }
+
+                List<Account> userAccounts = new ArrayList<>(Cache.getCache().get(userId).values());
 
                 int i = 0;
                 System.out.println("Select account");
@@ -238,7 +257,7 @@ public class DataHandler {
                     long accountNumber = userAccounts.get(option-1).getAccountNumber();
                     if (Mediator.deactivateAccount(accountNumber)) {
                         Cache.getCache().get(userId).remove(accountNumber);
-                        if (Cache.getCache().get(userId).isEmpty()) {
+                        if (!Cache.getCache().containsKey(userId)) {
                             Cache.getCache().put(userId, new HashMap<>());
                         }
                         return true;
