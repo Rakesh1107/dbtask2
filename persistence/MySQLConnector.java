@@ -8,9 +8,22 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Connector {
+public class MySQLConnector implements Persistence {
 
-    public static void main(String[] args) {
+    public MySQLConnector() throws BankException {
+        try {
+            if (connection == null) {
+                connection = DriverManager.getConnection(url, user, password);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new BankException("Connecting to database failed");
+        }
+
+    }
+
+    public static void main(String[] args) throws BankException {
+        MySQLConnector connector = new MySQLConnector();
 
         List<Customer> customers = new ArrayList<>();
 
@@ -28,7 +41,7 @@ public class Connector {
         customers.add(customer2);
 
         try {
-            List<Integer> list = insertIntoCustomers(customers);
+            List<Integer> list = connector.insertIntoCustomers(customers);
             for (int i: list)
                 System.out.println(i);
         }
@@ -55,7 +68,7 @@ public class Connector {
         return connection;
     }
 
-    public static List<Customer> getCustomers() throws BankException {
+    public List<Customer> getCustomers() throws BankException {
         List<Customer> customers = new ArrayList<>();
 
         try (Statement statement = getConnection().createStatement()) {
@@ -84,7 +97,7 @@ public class Connector {
         }
     }
 
-    public static List<Account> getAccounts() throws BankException {
+    public List<Account> getAccounts() throws BankException {
         List<Account> accounts = new ArrayList<>();
 
         try (Statement statement = getConnection().createStatement()) {
@@ -113,10 +126,10 @@ public class Connector {
         }
     }
 
-    public static long insertIntoAccounts(Account account) throws BankException {
+    public long insertIntoAccounts(Account account) throws BankException {
         if (account == null) throw new BankException("Invalid account details");
 
-        String query = "insert into accounts (userid, balance, branch, time) values (?,?,?,?)";
+        String query = "insert into accounts (userid, balance, branch, creation_time) values (?,?,?,?)";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, account.getUserId());
             preparedStatement.setLong(2, account.getBalance());
@@ -135,10 +148,10 @@ public class Connector {
         return -1;
     }
 
-    public static int insertIntoCustomers(Customer customer) throws BankException {
+    public int insertIntoCustomers(Customer customer) throws BankException {
         if (customer == null) throw new BankException("Invalid customer details");
 
-        String query = "insert into customers (name, mobile, address, time) values (?,?,?,?)";
+        String query = "insert into customers (name, mobile, address, creation_time) values (?,?,?,?)";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, customer.getName());
             preparedStatement.setLong(2, customer.getMobileNumber());
@@ -158,13 +171,13 @@ public class Connector {
     }
 
 
-    public static List<Integer> insertIntoAccounts(List<Account> accounts) throws BankException {
+    public List<Long> insertIntoAccounts(List<Account> accounts) throws BankException {
         if (accounts == null || accounts.size() == 0) throw new BankException("Empty batch");
 
-        String query = "insert into accounts (userid, balance, branch, time) values (?,?,?,?)";
+        String query = "insert into accounts (userid, balance, branch, creation_time) values (?,?,?,?)";
         int count = 0;
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            List<Integer> list = new ArrayList<>();
+            List<Long> list = new ArrayList<>();
             getConnection().setAutoCommit(false);
             for (Account account : accounts) {
                 preparedStatement.setInt(1, account.getUserId());
@@ -177,7 +190,7 @@ public class Connector {
             getConnection().commit();
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 while (resultSet.next()) {
-                    list.add(resultSet.getInt(1));
+                    list.add(resultSet.getLong(1));
                 }
                 return list;
             }
@@ -187,10 +200,10 @@ public class Connector {
         }
     }
 
-    public static List<Integer> insertIntoCustomers(List<Customer> customers) throws BankException {
+    public List<Integer> insertIntoCustomers(List<Customer> customers) throws BankException {
         if (customers == null || customers.size() == 0) throw new BankException("Empty batch");
 
-        String query = "insert into customers (name, mobile, address, time) values (?,?,?,?)";
+        String query = "insert into customers (name, mobile, address, creation_time) values (?,?,?,?)";
         int count = 0;
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
             getConnection().setAutoCommit(false);
@@ -216,7 +229,7 @@ public class Connector {
         }
     }
 
-    public static long withdrawMoney(long accountNumber, long amount) throws BankException {
+    public long withdrawMoney(long accountNumber, long amount) throws BankException {
         String query = "update accounts set balance = ? where acc_no = ?";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)) {
             long oldBalance = getBalance(accountNumber);
@@ -230,7 +243,7 @@ public class Connector {
         }
     }
 
-    public static long depositMoney(long accountNumber, long amount) throws BankException {
+    public long depositMoney(long accountNumber, long amount) throws BankException {
         String query = "update accounts set balance = ? where acc_no = ?";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)){
             long oldBalance = getBalance(accountNumber);
@@ -259,7 +272,7 @@ public class Connector {
         }
     }
 
-    public static boolean deactivateAccount (long accountNumber) throws BankException {
+    public boolean deactivateAccount (long accountNumber) throws BankException {
         String query = "update accounts set active = 0 where acc_no = ?";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)){
             preparedStatement.setLong(1, accountNumber);
@@ -271,7 +284,7 @@ public class Connector {
         }
     }
 
-    public static boolean deactivateUser (int userid) throws BankException {
+    public boolean deactivateUser (int userid) throws BankException {
         String query = "update customers set active = 0 where userid = ?";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)){
             preparedStatement.setInt(1, userid);
@@ -284,7 +297,7 @@ public class Connector {
 
     }
 
-    public static List<Integer> getUsersWithNoActiveAccounts() throws BankException {
+    public List<Integer> getUsersWithNoActiveAccounts() throws BankException {
         List<Integer> users = new ArrayList<>();
 
         try (Statement statement = getConnection().createStatement()) {

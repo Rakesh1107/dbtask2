@@ -1,17 +1,16 @@
 package cache;
 
+import persistence.Persistence;
 import pojo.Account;
 import pojo.Customer;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 
 public class Cache {
 
     private static final Map<Integer, Map<Long, Account>> cache = new HashMap<>();
     private static final Map<Integer, Customer> users = new HashMap<>();
+    private static final List<Persistence> layers = new ArrayList<>();
     //private static final List<Long> userAccounts = new ArrayList<>();
 
     public static void addToCache(List<Account> accounts) {
@@ -46,4 +45,11 @@ public class Cache {
         return users;
     }
 
+    public static void addToLayers(List<Persistence> persistenceLayers) {
+        layers.addAll(persistenceLayers);
+    }
+
+    public static List<Persistence> getLayers() {
+        return layers;
+    }
 }

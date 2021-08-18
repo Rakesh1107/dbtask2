@@ -3,26 +3,28 @@ package persistence;
 import exception.BankException;
 import pojo.Account;
 import pojo.Customer;
-
 import java.util.List;
-import java.lang.reflect.*;
 
-interface Persistence {
+public interface Persistence {
 
-//    public static List<Account> getAccounts();
-//
-//    public static List<Customer> getCustomers();
+    List<Account> getAccounts() throws BankException;
 
-    public int insertIntoCustomer();
+    List<Customer> getCustomers() throws BankException;
 
-    public long insertIntoAccounts();
+    int insertIntoCustomers(Customer customer) throws BankException;
 
-    public long depositMoney();
+    long insertIntoAccounts(Account account) throws BankException;
 
-    public long withdrawMoney();
+    List<Long> insertIntoAccounts(List<Account> accounts) throws BankException;
 
-    public boolean deactivateAccount();
+    List<Integer> insertIntoCustomers(List<Customer> customers) throws BankException;
 
-    public boolean deactivateUser();
+    long depositMoney(long accountNumber, long money) throws BankException;
+
+    long withdrawMoney(long accountNumber, long money) throws BankException;
+
+    boolean deactivateAccount(long accountNumber) throws BankException;
+
+    boolean deactivateUser(int userId) throws BankException;
 
 }
