@@ -9,13 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MySQLConnector implements Persistence {
+    static Connection connection;
+    private static final String url = "jdbc:mysql://localhost:3306/bankdb?autoReconnect=true&useSSL=false";
+    private static final String user = "root";
+    private static final String password = "1234";
 
     public MySQLConnector() throws BankException {
         try {
             if (connection == null) {
                 connection = DriverManager.getConnection(url, user, password);
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             e.printStackTrace();
             throw new BankException("Connecting to database failed");
         }
@@ -50,11 +55,6 @@ public class MySQLConnector implements Persistence {
         }
 
     }
-
-    static Connection connection;
-    private static final String url = "jdbc:mysql://localhost:3306/bankdb?autoReconnect=true&useSSL=false";
-    private static final String user = "root";
-    private static final String password = "1234";
 
     public static Connection getConnection() throws BankException {
         try {

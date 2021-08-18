@@ -29,7 +29,7 @@ public class Mediator {
         return set;
     }
 
-    public static void load() throws BankException {
+    public void load() throws BankException {
         List<Persistence> layers = loadProps();
 
         if (layers.isEmpty()) {
@@ -48,7 +48,7 @@ public class Mediator {
 
     }
 
-    public static int insertCustomer(Customer customer) throws BankException {
+    public int insertCustomer(Customer customer) throws BankException {
         int userId = 0;
         for (Persistence prs: Cache.getLayers()) {
             userId = prs.insertIntoCustomers(customer);
@@ -56,7 +56,7 @@ public class Mediator {
         return userId;
     }
 
-    public static long insertAccount(Account account) throws BankException {
+    public long insertAccount(Account account) throws BankException {
         long accountNumber = 0;
         for (Persistence prs: Cache.getLayers()) {
             accountNumber = prs.insertIntoAccounts(account);
@@ -64,7 +64,7 @@ public class Mediator {
         return accountNumber;
     }
 
-    public static List<Integer> insertCustomers(List<Customer> customers) throws BankException {
+    public List<Integer> insertCustomers(List<Customer> customers) throws BankException {
         List<Integer> userIds = null;
         for (Persistence prs: Cache.getLayers()) {
             userIds = prs.insertIntoCustomers(customers);
@@ -72,7 +72,7 @@ public class Mediator {
         return userIds;
     }
 
-    public static List<Long> insertAccounts(List<Account> accounts) throws BankException {
+    public List<Long> insertAccounts(List<Account> accounts) throws BankException {
         List<Long> accountNumbers = null;
         for (Persistence prs: Cache.getLayers()) {
             accountNumbers = prs.insertIntoAccounts(accounts);
@@ -80,7 +80,7 @@ public class Mediator {
         return accountNumbers;
     }
 
-    public static long updateBalance(int option, long accountNumber, long amount) throws BankException {
+    public long updateBalance(int option, long accountNumber, long amount) throws BankException {
         long balance = 0;
         if (option == 1) {
             for (Persistence prs: Cache.getLayers()) {
@@ -94,7 +94,7 @@ public class Mediator {
         return balance;
     }
 
-    public static boolean deactivateAccount(long accountNumber) throws BankException {
+    public boolean deactivateAccount(long accountNumber) throws BankException {
         boolean done = false;
         for (Persistence prs: Cache.getLayers()) {
             done = prs.deactivateAccount(accountNumber);
@@ -102,7 +102,7 @@ public class Mediator {
         return done;
     }
 
-    public static boolean deactivateUser(int userid) throws BankException {
+    public boolean deactivateUser(int userid) throws BankException {
         boolean done = false;
         for (Persistence prs: Cache.getLayers()) {
             done = prs.deactivateUser(userid);
