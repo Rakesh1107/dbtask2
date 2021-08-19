@@ -226,6 +226,9 @@ public class MySQLConnector implements Persistence {
         if (!Validator.validate(String.valueOf(accountNumber), String.valueOf(amount))) {
             throw new BankException("Invalid fields");
         }
+        if (Validator.validateMoney(amount)) {
+            throw new BankException("Amount should be in multiples of 100");
+        }
 
         String query = "update accounts set balance = ? where acc_no = ?";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)) {
@@ -242,6 +245,9 @@ public class MySQLConnector implements Persistence {
     public long depositMoney(long accountNumber, long amount) throws BankException {
         if (!Validator.validate(String.valueOf(accountNumber), String.valueOf(amount))) {
             throw new BankException("Invalid fields");
+        }
+        if (Validator.validateMoney(amount)) {
+            throw new BankException("Amount should be in multiples of 100");
         }
 
         String query = "update accounts set balance = ? where acc_no = ?";

@@ -121,6 +121,10 @@ public enum DataHandler {
                         throw new BankException("No accounts available");
                     }
 
+                    if (Validator.validateMoney(amount)) {
+                        throw new BankException("Amount should be in multiples of 100");
+                    }
+
                     List<Account> userAccounts = new ArrayList<>(cache.getCache().get(userId).values());
                     int i = 0;
                     System.out.println("Select account");
@@ -163,6 +167,10 @@ public enum DataHandler {
 
                 if (cache.getCache().get(userId).isEmpty()) {
                     throw new BankException("No accounts available");
+                }
+
+                if (Validator.validateMoney(amount)) {
+                    throw new BankException("Amount should be in multiples of 100");
                 }
 
                 List<Account> userAccounts = new ArrayList<>(cache.getCache().get(userId).values());

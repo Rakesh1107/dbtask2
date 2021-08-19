@@ -29,4 +29,9 @@ public class Validator {
     public static boolean validateName(String name) {
           return Pattern.matches("[A-Za-z]+", name);
     }
+
+    // Validate if amount is a multiple of 100 (minimum denomination)
+    public static boolean validateMoney(long amount) {
+        return amount % 100 != 0;
+    }
 }

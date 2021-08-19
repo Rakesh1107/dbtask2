@@ -30,7 +30,7 @@ public enum Cache {
 
     public void addUsersWithNoActiveAccounts(List<Integer> list) {
         for(int userId: list) {
-            cache.put(userId, new HashMap<>());
+            cache.putIfAbsent(userId, new HashMap<>());
         }
     }
 

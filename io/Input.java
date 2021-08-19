@@ -101,7 +101,7 @@ public enum Input {
                     amount = getLong();
 
                     newBalance = dataHandler.withdrawMoney(userId, amount);
-                    System.out.println("Your new balance is " + newBalance);
+                    System.out.println("Your new balance is ₹. " + newBalance);
                     break;
                 case 7:
                     System.out.println("Enter user id");
