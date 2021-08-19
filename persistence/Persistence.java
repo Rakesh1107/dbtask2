@@ -27,4 +27,5 @@ public interface Persistence {
 
     boolean deactivateUser(int userId) throws BankException;
 
+    List<Integer> getUsersWithNoActiveAccounts() throws BankException;
 }

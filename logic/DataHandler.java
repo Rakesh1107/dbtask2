@@ -1,10 +1,11 @@
 package logic;
 
-import cache.Cache;
-import exception.BankException;
 import io.Input;
+import cache.Cache;
 import pojo.Account;
 import pojo.Customer;
+import validator.Validator;
+import exception.BankException;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -18,42 +19,15 @@ public class DataHandler {
         formatter.setTimeZone(TimeZone.getDefault());
         System.out.println(TimeZone.getDefault().getID());
         Calendar calendar = Calendar.getInstance();
-//        String[] arr = TimeZone.getAvailableIDs();
-//        for (String s: arr) {
-//            System.out.println(s);
-//        }
         calendar.setTimeInMillis(System.currentTimeMillis());
         System.out.println(formatter.format(calendar.getTime()));
     }
 
-    private static boolean validate(String... fields) {
-        for (String field : fields) {
-            if (field == null || field.length() == 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean validateMobileNumber(long mobileNumber) {
-        String mobile = String.valueOf(mobileNumber);
-
-        if (mobile.length() == 10) {
-            char firstNumber = mobile.charAt(0);
-            return firstNumber == '6' || firstNumber == '7' || firstNumber == '8' || firstNumber == '9';
-        } else {
-            return false;
-        }
-    }
-
     public static long[] createNewUser(String name, long mobileNumber, String address, String branch) throws BankException {
-    /*    Pattern pattern = Pattern.compile("[A-Za-z]+");
-          Matcher matcher = pattern.matcher(name);
-          boolean match = matcher.find(); */
 
-        if (validate(name, branch, address, String.valueOf(mobileNumber))) {
+        if (Validator.validate(name, branch, address, String.valueOf(mobileNumber))) {
 
-            if (validateMobileNumber(mobileNumber)) {
+            if (Validator.validateMobileNumber(mobileNumber)) {
                 Customer customer = new Customer();
                 customer.setName(name);
                 customer.setMobileNumber(mobileNumber);
@@ -89,7 +63,7 @@ public class DataHandler {
 
     public static long createNewAccount(int userId, String branch) throws BankException {
 
-        if (validate(branch, String.valueOf(userId))) {
+        if (Validator.validate(branch, String.valueOf(userId))) {
             if (!Cache.getCache().containsKey(userId)) {
                 throw new BankException("User id does not exist");
             }
@@ -116,7 +90,7 @@ public class DataHandler {
     }
 
     public static long checkBalance(int userId) throws BankException {
-        if (validate(String.valueOf(userId))) {
+        if (Validator.validate(String.valueOf(userId))) {
             if (!Cache.getCache().containsKey(userId)) {
                 throw new BankException("User id not found");
             }
@@ -135,7 +109,7 @@ public class DataHandler {
 
     public static long withdrawMoney(int userId, long amount) throws BankException {
 
-        if (validate(String.valueOf(userId), String.valueOf(amount))) {
+        if (Validator.validate(String.valueOf(userId), String.valueOf(amount))) {
             if (amount > 0) {
                 if (Cache.getCache().containsKey(userId)) {
 
@@ -180,7 +154,7 @@ public class DataHandler {
     }
 
     public static long depositMoney(int userId, long amount) throws BankException {
-        if (validate(String.valueOf(userId), String.valueOf(amount))) {
+        if (Validator.validate(String.valueOf(userId), String.valueOf(amount))) {
             if (Cache.getCache().containsKey(userId)) {
 
                 if (Cache.getCache().get(userId).isEmpty()) {
@@ -216,7 +190,7 @@ public class DataHandler {
 
     public static List<Account> showAccounts(int userId) throws BankException {
 
-        if (validate(String.valueOf(userId))) {
+        if (Validator.validate(String.valueOf(userId))) {
             if (!Cache.getCache().containsKey(userId)) {
                 throw new BankException("User id does not exist");
             } else {
@@ -234,7 +208,7 @@ public class DataHandler {
     }
 
     public static boolean deactivateAccount(int userId) throws BankException {
-        if (validate(String.valueOf(userId))) {
+        if (Validator.validate(String.valueOf(userId))) {
             if (Cache.getCache().containsKey(userId)) {
                 if (Cache.getCache().get(userId).isEmpty()) {
                     throw new BankException("No accounts available");
@@ -273,7 +247,7 @@ public class DataHandler {
     }
 
     public static boolean deactivateUser(int userId) throws BankException {
-        if (validate(String.valueOf(userId))) {
+        if (Validator.validate(String.valueOf(userId))) {
             if (Cache.getCache().containsKey(userId)) {
                 if (Mediator.deactivateUser(userId)) {
                     Cache.getCache().remove(userId);

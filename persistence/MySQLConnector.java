@@ -3,6 +3,7 @@ package persistence;
 import exception.BankException;
 import pojo.Account;
 import pojo.Customer;
+import validator.Validator;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -15,16 +16,18 @@ public class MySQLConnector implements Persistence {
     private static final String password = "1234";
 
     public MySQLConnector() throws BankException {
+        getConnection();
+    }
+
+    public static Connection getConnection() throws BankException {
         try {
             if (connection == null) {
                 connection = DriverManager.getConnection(url, user, password);
             }
+        } catch (SQLException exception) {
+            throw new BankException("Connecting to database failed", exception);
         }
-        catch (SQLException e) {
-            e.printStackTrace();
-            throw new BankException("Connecting to database failed");
-        }
-
+        return connection;
     }
 
     public static void main(String[] args) throws BankException {
@@ -50,22 +53,10 @@ public class MySQLConnector implements Persistence {
             for (int i: list)
                 System.out.println(i);
         }
-        catch (BankException e) {
-            System.out.println(e.getMessage());
+        catch (BankException exception) {
+            System.out.println(exception.getMessage());
         }
 
-    }
-
-    public static Connection getConnection() throws BankException {
-        try {
-            if (connection == null) {
-                connection = DriverManager.getConnection(url, user, password);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new BankException("Connecting to database failed");
-        }
-        return connection;
     }
 
     public List<Customer> getCustomers() throws BankException {
@@ -92,7 +83,6 @@ public class MySQLConnector implements Persistence {
                 return customers;
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
             throw new BankException("Unable to retrieve users at the moment", exception);
         }
     }
@@ -121,13 +111,14 @@ public class MySQLConnector implements Persistence {
                 return accounts;
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
             throw new BankException("Unable to retrieve accounts at the moment", exception);
         }
     }
 
     public long insertIntoAccounts(Account account) throws BankException {
-        if (account == null) throw new BankException("Invalid account details");
+        if (account == null) {
+            throw new BankException("Invalid account details");
+        }
 
         String query = "insert into accounts (userid, balance, branch, creation_time) values (?,?,?,?)";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -142,14 +133,15 @@ public class MySQLConnector implements Persistence {
                 }
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
             throw new BankException("Adding account failed", exception);
         }
         return -1;
     }
 
     public int insertIntoCustomers(Customer customer) throws BankException {
-        if (customer == null) throw new BankException("Invalid customer details");
+        if (customer == null) {
+            throw new BankException("Invalid customer details");
+        }
 
         String query = "insert into customers (name, mobile, address, creation_time) values (?,?,?,?)";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -164,7 +156,6 @@ public class MySQLConnector implements Persistence {
                 }
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
             throw new BankException("Adding user failed", exception);
         }
         return -1;
@@ -172,7 +163,9 @@ public class MySQLConnector implements Persistence {
 
 
     public List<Long> insertIntoAccounts(List<Account> accounts) throws BankException {
-        if (accounts == null || accounts.size() == 0) throw new BankException("Empty batch");
+        if (accounts == null || accounts.size() == 0) {
+            throw new BankException("Empty batch");
+        }
 
         String query = "insert into accounts (userid, balance, branch, creation_time) values (?,?,?,?)";
         int count = 0;
@@ -195,13 +188,14 @@ public class MySQLConnector implements Persistence {
                 return list;
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
             throw new BankException("Added " + count + " records", exception);
         }
     }
 
     public List<Integer> insertIntoCustomers(List<Customer> customers) throws BankException {
-        if (customers == null || customers.size() == 0) throw new BankException("Empty batch");
+        if (customers == null || customers.size() == 0) {
+            throw new BankException("Empty batch");
+        }
 
         String query = "insert into customers (name, mobile, address, creation_time) values (?,?,?,?)";
         int count = 0;
@@ -224,12 +218,15 @@ public class MySQLConnector implements Persistence {
                 return list;
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
             throw new BankException("Added " + count + " records", exception);
         }
     }
 
     public long withdrawMoney(long accountNumber, long amount) throws BankException {
+        if (!Validator.validate(String.valueOf(accountNumber), String.valueOf(amount))) {
+            throw new BankException("Invalid fields");
+        }
+
         String query = "update accounts set balance = ? where acc_no = ?";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)) {
             long oldBalance = getBalance(accountNumber);
@@ -238,12 +235,15 @@ public class MySQLConnector implements Persistence {
             preparedStatement.executeUpdate();
             return getBalance(accountNumber);
         } catch (SQLException exception) {
-            exception.printStackTrace();
             throw new BankException("Money Withdrawal failed", exception);
         }
     }
 
     public long depositMoney(long accountNumber, long amount) throws BankException {
+        if (!Validator.validate(String.valueOf(accountNumber), String.valueOf(amount))) {
+            throw new BankException("Invalid fields");
+        }
+
         String query = "update accounts set balance = ? where acc_no = ?";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)){
             long oldBalance = getBalance(accountNumber);
@@ -252,12 +252,15 @@ public class MySQLConnector implements Persistence {
             preparedStatement.executeUpdate();
             return getBalance(accountNumber);
         } catch (SQLException exception) {
-            exception.printStackTrace();
             throw new BankException("Money deposit failed", exception);
         }
     }
 
     private static long getBalance(long accountNumber) throws BankException {
+        if (!Validator.validate(String.valueOf(accountNumber))) {
+            throw new BankException("Invalid account number");
+        }
+
         try (Statement statement = getConnection().createStatement()) {
             String selectQuery = "select balance from accounts where acc_no = " + accountNumber;
             try (ResultSet resultSet = statement.executeQuery(selectQuery)) {
@@ -267,31 +270,36 @@ public class MySQLConnector implements Persistence {
                 return -1;
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
             throw new BankException("Could not load balance", exception);
         }
     }
 
     public boolean deactivateAccount (long accountNumber) throws BankException {
+        if (!Validator.validate(String.valueOf(accountNumber))) {
+            throw new BankException("Invalid account number");
+        }
+
         String query = "update accounts set active = 0 where acc_no = ?";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)){
             preparedStatement.setLong(1, accountNumber);
             preparedStatement.executeUpdate();
             return true;
         } catch (SQLException exception) {
-            exception.printStackTrace();
             throw new BankException("Deleting account failed", exception);
         }
     }
 
     public boolean deactivateUser (int userid) throws BankException {
+        if (!Validator.validate(String.valueOf(userid))) {
+            throw new BankException("Invalid user id");
+        }
+
         String query = "update customers set active = 0 where userid = ?";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(query)){
             preparedStatement.setInt(1, userid);
             preparedStatement.executeUpdate();
             return true;
         } catch (SQLException exception) {
-            exception.printStackTrace();
             throw new BankException("Deleting account failed", exception);
         }
 
@@ -312,7 +320,6 @@ public class MySQLConnector implements Persistence {
                 return users;
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
             throw new BankException("Unable to retrieve accounts at the moment", exception);
         }
     }

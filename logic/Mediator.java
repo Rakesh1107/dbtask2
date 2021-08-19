@@ -1,11 +1,11 @@
 package logic;
 
 import cache.Cache;
-import persistence.MySQLConnector;
-import exception.BankException;
-import persistence.Persistence;
 import pojo.Account;
 import pojo.Customer;
+import exception.BankException;
+import persistence.Persistence;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -13,7 +13,7 @@ import java.util.*;
 public class Mediator {
 
 
-    public static List<Persistence> loadProps() {
+    public static List<Persistence> loadProps() throws BankException {
         List<Persistence> set = new ArrayList<>();
             try (FileReader reader = new FileReader("config.properties")) {
                 Properties p = new Properties();
@@ -23,32 +23,35 @@ public class Mediator {
                     Persistence prs = (Persistence) cls.newInstance();
                     set.add(prs);
                 }
-            } catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
+            } catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException exception) {
+                exception.printStackTrace();
+                throw new BankException("Failed to load properties file", exception);
             }
         return set;
     }
 
-    public void load() throws BankException {
+    public static void load() throws BankException {
         List<Persistence> layers = loadProps();
 
         if (layers.isEmpty()) {
             throw new BankException("Exiting application");
         }
 
-        MySQLConnector connector = new MySQLConnector();
-        List<Account> accounts = connector.getAccounts();
-        List<Integer> usersWithNoActiveAccounts = connector.getUsersWithNoActiveAccounts();
-        List<Customer> customers = connector.getCustomers();
-
         Cache.addToLayers(layers);
-        Cache.addToCache(accounts);
-        Cache.addUsersWithNoActiveAccounts(usersWithNoActiveAccounts);
-        Cache.addToUsers(customers);
+
+        for (Persistence prs : layers) {
+            List<Account> accounts = prs.getAccounts();
+            List<Integer> usersWithNoActiveAccounts = prs.getUsersWithNoActiveAccounts();
+            List<Customer> customers = prs.getCustomers();
+
+            Cache.addToCache(accounts);
+            Cache.addUsersWithNoActiveAccounts(usersWithNoActiveAccounts);
+            Cache.addToUsers(customers);
+        }
 
     }
 
-    public int insertCustomer(Customer customer) throws BankException {
+    public static int insertCustomer(Customer customer) throws BankException {
         int userId = 0;
         for (Persistence prs: Cache.getLayers()) {
             userId = prs.insertIntoCustomers(customer);
@@ -56,7 +59,7 @@ public class Mediator {
         return userId;
     }
 
-    public long insertAccount(Account account) throws BankException {
+    public static long insertAccount(Account account) throws BankException {
         long accountNumber = 0;
         for (Persistence prs: Cache.getLayers()) {
             accountNumber = prs.insertIntoAccounts(account);
@@ -64,7 +67,7 @@ public class Mediator {
         return accountNumber;
     }
 
-    public List<Integer> insertCustomers(List<Customer> customers) throws BankException {
+    public static List<Integer> insertCustomers(List<Customer> customers) throws BankException {
         List<Integer> userIds = null;
         for (Persistence prs: Cache.getLayers()) {
             userIds = prs.insertIntoCustomers(customers);
@@ -72,7 +75,7 @@ public class Mediator {
         return userIds;
     }
 
-    public List<Long> insertAccounts(List<Account> accounts) throws BankException {
+    public static List<Long> insertAccounts(List<Account> accounts) throws BankException {
         List<Long> accountNumbers = null;
         for (Persistence prs: Cache.getLayers()) {
             accountNumbers = prs.insertIntoAccounts(accounts);
@@ -80,7 +83,7 @@ public class Mediator {
         return accountNumbers;
     }
 
-    public long updateBalance(int option, long accountNumber, long amount) throws BankException {
+    public static long updateBalance(int option, long accountNumber, long amount) throws BankException {
         long balance = 0;
         if (option == 1) {
             for (Persistence prs: Cache.getLayers()) {
@@ -94,7 +97,7 @@ public class Mediator {
         return balance;
     }
 
-    public boolean deactivateAccount(long accountNumber) throws BankException {
+    public static boolean deactivateAccount(long accountNumber) throws BankException {
         boolean done = false;
         for (Persistence prs: Cache.getLayers()) {
             done = prs.deactivateAccount(accountNumber);
@@ -102,7 +105,7 @@ public class Mediator {
         return done;
     }
 
-    public boolean deactivateUser(int userid) throws BankException {
+    public static boolean deactivateUser(int userid) throws BankException {
         boolean done = false;
         for (Persistence prs: Cache.getLayers()) {
             done = prs.deactivateUser(userid);

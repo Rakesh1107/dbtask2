@@ -1,9 +1,11 @@
 package io;
 
-import exception.BankException;
 import pojo.Account;
 import logic.DataHandler;
 import logic.Initiator;
+import validator.Validator;
+import exception.BankException;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -26,21 +28,14 @@ public class Input {
                 option = getInt();
             }
 
-            Display.closeApplication();
+            System.out.println("Closing application");
         } catch (BankException exception) {
+            //exception.printStackTrace();
             System.out.println(exception.getMessage());
-            getInput();
         }
     }
 
-    private static boolean validate(String... fields) {
-        for (String field : fields) {
-            if (field == null || field.length() == 0) {
-                return false;
-            }
-        }
-        return true;
-    }
+
 
     private static void handle(int option) {
         try {
@@ -51,7 +46,8 @@ public class Input {
                     long accountNumber = getLong();
                     String branch = getString();
                     String address = getString();
-                    if (validate(name, branch, address)) {
+
+                    if (Validator.validate(name, branch, address)) {
                         long[] data = DataHandler.createNewUser(name, accountNumber, branch, address);
                         Display.showUserData(data);
                     } else {
@@ -62,26 +58,25 @@ public class Input {
                     Display.showNewAccount();
                     int userId = getInt();
                     branch = getString();
-                    if (validate(branch)) {
+
+                    if (Validator.validate(branch)) {
                         long accountNo = DataHandler.createNewAccount(userId, branch);
-                        if (accountNo == -1) {
-                            Display.userIdNotFound();
-                        } else {
-                            Display.showAccountNumber(accountNo);
-                        }
+                        Display.showAccountNumber(accountNo);
                     } else {
                         System.out.println("All fields must be filled !");
                     }
                     break;
                 case 3:
-                    Display.askUserId();
+                    System.out.println("Enter user id");
                     userId = getInt();
+
                     long balance = DataHandler.checkBalance(userId);
                     Display.showBalance(balance);
                     break;
                 case 4:
-                    Display.askUserId();
+                    System.out.println("Enter user id");
                     userId = getInt();
+
                     List<Account> list = DataHandler.showAccounts(userId);
                     Display.printAccounts(list);
                     break;
@@ -90,6 +85,7 @@ public class Input {
                     System.out.println("Enter amount to deposit");
                     userId = getInt();
                     long amount = getLong();
+
                     long newBalance = DataHandler.depositMoney(userId, amount);
                     System.out.println("Your new balance is " + newBalance);
                     break;
@@ -98,6 +94,7 @@ public class Input {
                     System.out.println("Enter amount to withdraw");
                     userId = getInt();
                     amount = getLong();
+
                     newBalance = DataHandler.withdrawMoney(userId, amount);
                     System.out.println("Your new balance is " + newBalance);
                     break;
@@ -107,6 +104,7 @@ public class Input {
                     System.out.println("1. Delete account");
                     System.out.println("2. Delete user");
                     option = getInt();
+
                     if (option == 1) {
                         if(DataHandler.deactivateAccount(userId)) {
                             System.out.println("Account deleted successfully");
@@ -121,9 +119,10 @@ public class Input {
                     break;
 
                 default:
-                    Display.enterValidInput();
+                    System.out.println("Enter valid input");
             }
         } catch (BankException exception) {
+            //exception.printStackTrace();
             System.out.println(exception.getMessage());
         }
     }

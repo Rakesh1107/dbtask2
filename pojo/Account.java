@@ -40,6 +40,14 @@ public class Account {
         this.branch = branch;
     }
 
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
     @Override
     public String toString() {
         return "Account{" +
@@ -50,11 +58,4 @@ public class Account {
                 '}';
     }
 
-    public long getTime() {
-        return time;
-    }
-
-    public void setTime(long time) {
-        this.time = time;
-    }
 }

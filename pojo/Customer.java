@@ -40,6 +40,14 @@ public class Customer {
         this.address = address;
     }
 
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
     @Override
     public String toString() {
         return "Customer{" +
@@ -48,13 +56,5 @@ public class Customer {
                 ", mobileNumber=" + mobileNumber +
                 ", address='" + address + '\'' +
                 '}';
-    }
-
-    public long getTime() {
-        return time;
-    }
-
-    public void setTime(long time) {
-        this.time = time;
     }
 }
