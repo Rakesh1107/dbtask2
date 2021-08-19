@@ -1,10 +1,9 @@
 package validator;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Validator {
-
+    // Validate if all fields are filled
     public static boolean validate(String... fields) {
         for (String field : fields) {
             if (field == null || field.length() == 0) {
@@ -14,20 +13,20 @@ public class Validator {
         return true;
     }
 
+    // Validate if mobile number is 10 digits long and starts with either 6/7/8/9
     public static boolean validateMobileNumber(long mobileNumber) {
         String mobile = String.valueOf(mobileNumber);
 
         if (mobile.length() == 10) {
             char firstNumber = mobile.charAt(0);
             return firstNumber == '6' || firstNumber == '7' || firstNumber == '8' || firstNumber == '9';
-        } else {
-            return false;
         }
+
+        return false;
     }
 
+    // Validate if name does not contain special characters
     public static boolean validateName(String name) {
-          Pattern pattern = Pattern.compile("[A-Za-z]+");
-          Matcher matcher = pattern.matcher(name);
-          return matcher.matches();
+          return Pattern.matches("[A-Za-z]+", name);
     }
 }

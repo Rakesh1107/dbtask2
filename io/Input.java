@@ -11,20 +11,25 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.List;
 
-public class Input {
+public enum Input {
+    INSTANCE;
+
+    DataHandler dataHandler = DataHandler.INSTANCE;
+    Initiator initiator = Initiator.INSTANCE;
+    Display display = Display.INSTANCE;
 
     static BufferedReader inputReader = new BufferedReader(new InputStreamReader(System.in));
 
-    public static void getInput() {
+    public void getInput() {
         int option;
         try {
-            Initiator.initiate();
-            Display.showWelcomeMessage();
+            initiator.initiate();
+            display.showWelcomeMessage();
             option = getInt();
 
             while (option != 0) {
                 handle(option);
-                Display.showWelcomeMessage();
+                display.showWelcomeMessage();
                 option = getInt();
             }
 
@@ -37,31 +42,31 @@ public class Input {
 
 
 
-    private static void handle(int option) {
+    private void handle(int option) {
         try {
             switch (option) {
                 case 1:
-                    Display.showNewUser();
+                    display.showNewUser();
                     String name = getString();
                     long accountNumber = getLong();
                     String branch = getString();
                     String address = getString();
 
                     if (Validator.validate(name, branch, address)) {
-                        long[] data = DataHandler.createNewUser(name, accountNumber, branch, address);
-                        Display.showUserData(data);
+                        long[] data = dataHandler.createNewUser(name, accountNumber, branch, address);
+                        display.showUserData(data);
                     } else {
                         System.out.println("All fields must be filled !");
                     }
                     break;
                 case 2:
-                    Display.showNewAccount();
+                    display.showNewAccount();
                     int userId = getInt();
                     branch = getString();
 
                     if (Validator.validate(branch)) {
-                        long accountNo = DataHandler.createNewAccount(userId, branch);
-                        Display.showAccountNumber(accountNo);
+                        long accountNo = dataHandler.createNewAccount(userId, branch);
+                        display.showAccountNumber(accountNo);
                     } else {
                         System.out.println("All fields must be filled !");
                     }
@@ -70,15 +75,15 @@ public class Input {
                     System.out.println("Enter user id");
                     userId = getInt();
 
-                    long balance = DataHandler.checkBalance(userId);
-                    Display.showBalance(balance);
+                    long balance = dataHandler.checkBalance(userId);
+                    display.showBalance(balance);
                     break;
                 case 4:
                     System.out.println("Enter user id");
                     userId = getInt();
 
-                    List<Account> list = DataHandler.showAccounts(userId);
-                    Display.printAccounts(list);
+                    List<Account> list = dataHandler.showAccounts(userId);
+                    display.printAccounts(list);
                     break;
                 case 5:
                     System.out.println("Enter user id");
@@ -86,7 +91,7 @@ public class Input {
                     userId = getInt();
                     long amount = getLong();
 
-                    long newBalance = DataHandler.depositMoney(userId, amount);
+                    long newBalance = dataHandler.depositMoney(userId, amount);
                     System.out.println("Your new balance is " + newBalance);
                     break;
                 case 6:
@@ -95,7 +100,7 @@ public class Input {
                     userId = getInt();
                     amount = getLong();
 
-                    newBalance = DataHandler.withdrawMoney(userId, amount);
+                    newBalance = dataHandler.withdrawMoney(userId, amount);
                     System.out.println("Your new balance is " + newBalance);
                     break;
                 case 7:
@@ -106,11 +111,11 @@ public class Input {
                     option = getInt();
 
                     if (option == 1) {
-                        if(DataHandler.deactivateAccount(userId)) {
+                        if(dataHandler.deactivateAccount(userId)) {
                             System.out.println("Account deleted successfully");
                         }
                     } else if (option == 2) {
-                        if(DataHandler.deactivateUser(userId)) {
+                        if(dataHandler.deactivateUser(userId)) {
                             System.out.println("User deleted successfully");
                         }
                     } else {

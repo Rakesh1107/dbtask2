@@ -6,17 +6,18 @@ import persistence.Persistence;
 
 import java.util.*;
 
-public class Cache {
+public enum Cache {
+    INSTANCE;
 
     private static final Map<Integer, Map<Long, Account>> cache = new HashMap<>();
     private static final Map<Integer, Customer> users = new HashMap<>();
-    private static final List<Persistence> layers = new ArrayList<>();
+    private static final Map<String, Persistence> layers = new HashMap<>();
 
-    // Used in case of generating random account numbers
+    //      Used in case of generating random account numbers
     //private static final List<Long> userAccounts = new ArrayList<>();
 
     // Adding to cache
-    public static void addToCache(List<Account> accounts) {
+    public void addToCache(List<Account> accounts) {
         for (Account account : accounts) {
             int userId = account.getUserId();
             long accountNumber = account.getAccountNumber();
@@ -27,14 +28,14 @@ public class Cache {
         }
     }
 
-    public static void addUsersWithNoActiveAccounts(List<Integer> list) {
+    public void addUsersWithNoActiveAccounts(List<Integer> list) {
         for(int userId: list) {
             cache.put(userId, new HashMap<>());
         }
     }
 
     // Adding to users
-    public static void addToUsers(List<Customer> customers) {
+    public void addToUsers(List<Customer> customers) {
         for (Customer customer : customers) {
             int userId = customer.getUserId();
             users.put(userId, customer);
@@ -42,19 +43,20 @@ public class Cache {
     }
 
     // Adding to layers
-    public static void addToLayers(List<Persistence> persistenceLayers) {
-        layers.addAll(persistenceLayers);
+    public void addToLayers(Map<String, Persistence> persistenceLayers) {
+        layers.putAll(persistenceLayers);
     }
 
-    public static Map<Integer, Map<Long, Account>> getCache() {
+    // Getters
+    public Map<Integer, Map<Long, Account>> getCache() {
         return cache;
     }
 
-    public static Map<Integer, Customer> getUsers() {
+    public Map<Integer, Customer> getUsers() {
         return users;
     }
 
-    public static List<Persistence> getLayers() {
+    public Map<String, Persistence> getLayers() {
         return layers;
     }
 }

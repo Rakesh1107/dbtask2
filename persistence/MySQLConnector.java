@@ -1,9 +1,9 @@
 package persistence;
 
-import exception.BankException;
 import pojo.Account;
 import pojo.Customer;
 import validator.Validator;
+import exception.BankException;
 
 import java.sql.*;
 import java.util.ArrayList;

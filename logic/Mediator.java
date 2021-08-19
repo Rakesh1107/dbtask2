@@ -10,104 +10,107 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-public class Mediator {
+public enum Mediator {
+    INSTANCE;
 
+    Cache cache = Cache.INSTANCE;
 
-    public static List<Persistence> loadProps() throws BankException {
-        List<Persistence> set = new ArrayList<>();
+    public static Map<String, Persistence> loadProps() throws BankException {
+        Map<String, Persistence> map = new HashMap<>();
             try (FileReader reader = new FileReader("config.properties")) {
                 Properties p = new Properties();
                 p.load(reader);
-                for (Object layer: p.values()) {
-                    Class<?> cls = Class.forName((String) layer);
+                for (Map.Entry entry: p.entrySet()) {
+                    String key = (String) entry.getKey();
+
+                    Class<?> cls = Class.forName((String) entry.getValue());
                     Persistence prs = (Persistence) cls.newInstance();
-                    set.add(prs);
+                    map.put(key, prs);
                 }
             } catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException exception) {
                 exception.printStackTrace();
                 throw new BankException("Failed to load properties file", exception);
             }
-        return set;
+        return map;
     }
 
-    public static void load() throws BankException {
-        List<Persistence> layers = loadProps();
+    public void load() throws BankException {
 
-        if (layers.isEmpty()) {
+        if (loadProps().isEmpty()) {
             throw new BankException("Exiting application");
         }
 
-        Cache.addToLayers(layers);
+        cache.addToLayers(loadProps());
 
-        for (Persistence prs : layers) {
+        for (Persistence prs : cache.getLayers().values()) {
             List<Account> accounts = prs.getAccounts();
             List<Integer> usersWithNoActiveAccounts = prs.getUsersWithNoActiveAccounts();
             List<Customer> customers = prs.getCustomers();
 
-            Cache.addToCache(accounts);
-            Cache.addUsersWithNoActiveAccounts(usersWithNoActiveAccounts);
-            Cache.addToUsers(customers);
+            cache.addToCache(accounts);
+            cache.addUsersWithNoActiveAccounts(usersWithNoActiveAccounts);
+            cache.addToUsers(customers);
         }
 
     }
 
-    public static int insertCustomer(Customer customer) throws BankException {
+    public int insertCustomer(Customer customer) throws BankException {
         int userId = 0;
-        for (Persistence prs: Cache.getLayers()) {
+        for (Persistence prs: cache.getLayers().values()) {
             userId = prs.insertIntoCustomers(customer);
         }
         return userId;
     }
 
-    public static long insertAccount(Account account) throws BankException {
+    public long insertAccount(Account account) throws BankException {
         long accountNumber = 0;
-        for (Persistence prs: Cache.getLayers()) {
+        for (Persistence prs: cache.getLayers().values()) {
             accountNumber = prs.insertIntoAccounts(account);
         }
         return accountNumber;
     }
 
-    public static List<Integer> insertCustomers(List<Customer> customers) throws BankException {
+    public List<Integer> insertCustomers(List<Customer> customers) throws BankException {
         List<Integer> userIds = null;
-        for (Persistence prs: Cache.getLayers()) {
+        for (Persistence prs: cache.getLayers().values()) {
             userIds = prs.insertIntoCustomers(customers);
         }
         return userIds;
     }
 
-    public static List<Long> insertAccounts(List<Account> accounts) throws BankException {
+    public List<Long> insertAccounts(List<Account> accounts) throws BankException {
         List<Long> accountNumbers = null;
-        for (Persistence prs: Cache.getLayers()) {
+        for (Persistence prs: cache.getLayers().values()) {
             accountNumbers = prs.insertIntoAccounts(accounts);
         }
         return accountNumbers;
     }
 
-    public static long updateBalance(int option, long accountNumber, long amount) throws BankException {
+    public long updateBalance(int option, long accountNumber, long amount) throws BankException {
         long balance = 0;
         if (option == 1) {
-            for (Persistence prs: Cache.getLayers()) {
+            for (Persistence prs: cache.getLayers().values()) {
                 balance = prs.withdrawMoney(accountNumber, amount);
             }
         } else {
-            for (Persistence prs: Cache.getLayers()) {
+            for (Persistence prs: cache.getLayers().values()) {
                 balance = prs.depositMoney(accountNumber, amount);
             }
         }
         return balance;
     }
 
-    public static boolean deactivateAccount(long accountNumber) throws BankException {
+    public boolean deactivateAccount(long accountNumber) throws BankException {
         boolean done = false;
-        for (Persistence prs: Cache.getLayers()) {
+        for (Persistence prs: cache.getLayers().values()) {
             done = prs.deactivateAccount(accountNumber);
         }
         return done;
     }
 
-    public static boolean deactivateUser(int userid) throws BankException {
+    public boolean deactivateUser(int userid) throws BankException {
         boolean done = false;
-        for (Persistence prs: Cache.getLayers()) {
+        for (Persistence prs: cache.getLayers().values()) {
             done = prs.deactivateUser(userid);
         }
         return done;

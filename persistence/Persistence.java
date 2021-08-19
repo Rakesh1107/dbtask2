@@ -1,9 +1,9 @@
 package persistence;
 
-import exception.BankException;
 import pojo.Account;
 import pojo.Customer;
 import java.util.List;
+import exception.BankException;
 
 public interface Persistence {
 

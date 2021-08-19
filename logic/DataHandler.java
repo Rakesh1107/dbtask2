@@ -11,7 +11,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class DataHandler {
+public enum DataHandler {
+     INSTANCE;
+
+     Mediator mediator = Mediator.INSTANCE;
+     Cache cache = Cache.INSTANCE;
 
     public static void main(String[] args) {
         System.out.println(System.currentTimeMillis());
@@ -23,7 +27,7 @@ public class DataHandler {
         System.out.println(formatter.format(calendar.getTime()));
     }
 
-    public static long[] createNewUser(String name, long mobileNumber, String address, String branch) throws BankException {
+    public long[] createNewUser(String name, long mobileNumber, String address, String branch) throws BankException {
 
         if (Validator.validate(name, branch, address, String.valueOf(mobileNumber))) {
 
@@ -33,7 +37,7 @@ public class DataHandler {
                 customer.setMobileNumber(mobileNumber);
                 customer.setAddress(address);
                 customer.setTime(System.currentTimeMillis());
-                int userId = Mediator.insertCustomer(customer);
+                int userId = mediator.insertCustomer(customer);
 
                 if (userId != -1) {
                     customer.setUserId(userId);
@@ -41,13 +45,13 @@ public class DataHandler {
                     account.setUserId(userId);
                     account.setBranch(branch);
                     account.setTime(System.currentTimeMillis());
-                    long accountNumber = Mediator.insertAccount(account);
+                    long accountNumber = mediator.insertAccount(account);
 
                     if (accountNumber != -1) {
                         account.setAccountNumber(accountNumber);
-                        Cache.getUsers().put(userId, customer);
-                        Cache.getCache().put(userId, new HashMap<>());
-                        Cache.getCache().get(userId).put(accountNumber, account);
+                        cache.getUsers().put(userId, customer);
+                        cache.getCache().put(userId, new HashMap<>());
+                        cache.getCache().get(userId).put(accountNumber, account);
                         //Cache.getAccounts().add(accountNumber);
                         return new long[]{userId, accountNumber};
                     }
@@ -61,10 +65,10 @@ public class DataHandler {
 
     }
 
-    public static long createNewAccount(int userId, String branch) throws BankException {
+    public long createNewAccount(int userId, String branch) throws BankException {
 
         if (Validator.validate(branch, String.valueOf(userId))) {
-            if (!Cache.getCache().containsKey(userId)) {
+            if (!cache.getCache().containsKey(userId)) {
                 throw new BankException("User id does not exist");
             }
 
@@ -74,11 +78,11 @@ public class DataHandler {
             account.setBranch(branch);
             account.setTime(System.currentTimeMillis());
 
-            long accountNumber = Mediator.insertAccount(account);
+            long accountNumber = mediator.insertAccount(account);
 
             if (accountNumber != -1) {
                 account.setAccountNumber(accountNumber);
-                Cache.getCache().get(userId).put(accountNumber, account);
+                cache.getCache().get(userId).put(accountNumber, account);
                 //Cache.getAccounts().add(accountNumber);
                 return accountNumber;
             } else {
@@ -89,16 +93,16 @@ public class DataHandler {
         }
     }
 
-    public static long checkBalance(int userId) throws BankException {
+    public long checkBalance(int userId) throws BankException {
         if (Validator.validate(String.valueOf(userId))) {
-            if (!Cache.getCache().containsKey(userId)) {
+            if (!cache.getCache().containsKey(userId)) {
                 throw new BankException("User id not found");
             }
-            if (Cache.getCache().get(userId).isEmpty()) {
+            if (cache.getCache().get(userId).isEmpty()) {
                 throw new BankException("No accounts available");
             }
             long balance = 0;
-            for (Account account : Cache.getCache().get(userId).values()) {
+            for (Account account : cache.getCache().get(userId).values()) {
                 balance += account.getBalance();
             }
             return balance;
@@ -107,17 +111,17 @@ public class DataHandler {
         }
     }
 
-    public static long withdrawMoney(int userId, long amount) throws BankException {
+    public long withdrawMoney(int userId, long amount) throws BankException {
 
         if (Validator.validate(String.valueOf(userId), String.valueOf(amount))) {
             if (amount > 0) {
-                if (Cache.getCache().containsKey(userId)) {
+                if (cache.getCache().containsKey(userId)) {
 
-                    if (Cache.getCache().get(userId).isEmpty()) {
+                    if (cache.getCache().get(userId).isEmpty()) {
                         throw new BankException("No accounts available");
                     }
 
-                    List<Account> userAccounts = new ArrayList<>(Cache.getCache().get(userId).values());
+                    List<Account> userAccounts = new ArrayList<>(cache.getCache().get(userId).values());
                     int i = 0;
                     System.out.println("Select account");
 
@@ -132,7 +136,7 @@ public class DataHandler {
                         System.out.println(oldBalance);
                         if (oldBalance >= amount) {
                             long accountToUpdate = userAccounts.get(option - 1).getAccountNumber();
-                            long newBalance = Mediator.updateBalance(1, accountToUpdate, amount);
+                            long newBalance = mediator.updateBalance(1, accountToUpdate, amount);
                             userAccounts.get(option - 1).setBalance(oldBalance - amount);
                             return newBalance;
                         } else {
@@ -153,15 +157,15 @@ public class DataHandler {
 
     }
 
-    public static long depositMoney(int userId, long amount) throws BankException {
+    public long depositMoney(int userId, long amount) throws BankException {
         if (Validator.validate(String.valueOf(userId), String.valueOf(amount))) {
-            if (Cache.getCache().containsKey(userId)) {
+            if (cache.getCache().containsKey(userId)) {
 
-                if (Cache.getCache().get(userId).isEmpty()) {
+                if (cache.getCache().get(userId).isEmpty()) {
                     throw new BankException("No accounts available");
                 }
 
-                List<Account> userAccounts = new ArrayList<>(Cache.getCache().get(userId).values());
+                List<Account> userAccounts = new ArrayList<>(cache.getCache().get(userId).values());
                 int i = 0;
                 System.out.println("Select account");
 
@@ -173,7 +177,7 @@ public class DataHandler {
                 if (option > 0 && option <= userAccounts.size()) {
                     long accountToUpdate = userAccounts.get(option - 1).getAccountNumber();
                     long oldBalance = userAccounts.get(option - 1).getBalance();
-                    long newBalance = Mediator.updateBalance(2, accountToUpdate, amount);
+                    long newBalance = mediator.updateBalance(2, accountToUpdate, amount);
                     userAccounts.get(option - 1).setBalance(oldBalance + amount); // updating in cache
                     return newBalance;
                 } else {
@@ -188,16 +192,16 @@ public class DataHandler {
 
     }
 
-    public static List<Account> showAccounts(int userId) throws BankException {
+    public List<Account> showAccounts(int userId) throws BankException {
 
         if (Validator.validate(String.valueOf(userId))) {
-            if (!Cache.getCache().containsKey(userId)) {
+            if (!cache.getCache().containsKey(userId)) {
                 throw new BankException("User id does not exist");
             } else {
-                if (Cache.getCache().get(userId).isEmpty()) {
+                if (cache.getCache().get(userId).isEmpty()) {
                     throw new BankException("No accounts available");
                 } else {
-                    return new ArrayList<>(Cache.getCache().get(userId).values());
+                    return new ArrayList<>(cache.getCache().get(userId).values());
                 }
             }
 
@@ -207,14 +211,14 @@ public class DataHandler {
 
     }
 
-    public static boolean deactivateAccount(int userId) throws BankException {
+    public boolean deactivateAccount(int userId) throws BankException {
         if (Validator.validate(String.valueOf(userId))) {
-            if (Cache.getCache().containsKey(userId)) {
-                if (Cache.getCache().get(userId).isEmpty()) {
+            if (cache.getCache().containsKey(userId)) {
+                if (cache.getCache().get(userId).isEmpty()) {
                     throw new BankException("No accounts available");
                 }
 
-                List<Account> userAccounts = new ArrayList<>(Cache.getCache().get(userId).values());
+                List<Account> userAccounts = new ArrayList<>(cache.getCache().get(userId).values());
 
                 int i = 0;
                 System.out.println("Select account");
@@ -226,10 +230,10 @@ public class DataHandler {
 
                 if (option > 0 && option <= userAccounts.size()) {
                     long accountNumber = userAccounts.get(option - 1).getAccountNumber();
-                    if (Mediator.deactivateAccount(accountNumber)) {
-                        Cache.getCache().get(userId).remove(accountNumber);
-                        if (!Cache.getCache().containsKey(userId)) {
-                            Cache.getCache().put(userId, new HashMap<>());
+                    if (mediator.deactivateAccount(accountNumber)) {
+                        cache.getCache().get(userId).remove(accountNumber);
+                        if (!cache.getCache().containsKey(userId)) {
+                            cache.getCache().put(userId, new HashMap<>());
                         }
                         return true;
                     }
@@ -246,11 +250,11 @@ public class DataHandler {
         return false;
     }
 
-    public static boolean deactivateUser(int userId) throws BankException {
+    public boolean deactivateUser(int userId) throws BankException {
         if (Validator.validate(String.valueOf(userId))) {
-            if (Cache.getCache().containsKey(userId)) {
-                if (Mediator.deactivateUser(userId)) {
-                    Cache.getCache().remove(userId);
+            if (cache.getCache().containsKey(userId)) {
+                if (mediator.deactivateUser(userId)) {
+                    cache.getCache().remove(userId);
                     return true;
                 }
             } else {

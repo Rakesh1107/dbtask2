@@ -5,8 +5,10 @@ import java.util.List;
 
 import static java.lang.System.out;
 
-public class Display {
-    public static void showWelcomeMessage() {
+public enum Display {
+    INSTANCE;
+
+    public void showWelcomeMessage() {
         out.println("1. New user ");
         out.println("2. Existing user? Create new account ");
         out.println("3. Check Balance ");
@@ -17,33 +19,33 @@ public class Display {
         out.println("Enter 0 to exit");
     }
 
-    public static void showNewUser()  {
+    public void showNewUser()  {
         out.println("Enter your name");
         out.println("Enter your mobile number");
         out.println("Enter address");
         out.println("Enter branch");
     }
 
-    public static void showNewAccount() {
+    public void showNewAccount() {
         out.println("Enter your user id");
         out.println("Enter branch");
     }
 
-    public static void printAccounts(List<Account> list) {
+    public void printAccounts(List<Account> list) {
         for (Account account: list) {
             out.println(account);
         }
     }
 
-    public static void showUserData(long[] data) {
+    public void showUserData(long[] data) {
         out.println("Your user id is " + data[0] + "\nYour account number is " + data[1]);
     }
 
-    public static void showBalance(long balance) {
+    public void showBalance(long balance) {
         out.println("Your total balance is " + balance);
     }
 
-    public static void showAccountNumber(long accountNumber) {
+    public void showAccountNumber(long accountNumber) {
         out.println("Your account number is " + accountNumber);
     }
 

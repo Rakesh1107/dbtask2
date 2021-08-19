@@ -2,8 +2,10 @@ package logic;
 
 import exception.BankException;
 
-public class Initiator {
-    public static void initiate() throws BankException {
-        Mediator.load();
+public enum Initiator {
+    INSTANCE;
+    public void initiate() throws BankException {
+        Mediator mediator = Mediator.INSTANCE;
+        mediator.load();
     }
 }
